@@ -76,13 +76,13 @@ export const login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: user.id, email: user.email, role: user.role  },
             ACCESS_TOKEN_SECRET,
-            { expiresIn: "15m" }
+            { expiresIn: process.env.ACCESS_TOKEN_EXPIRES }
         );
 
         const refreshToken = jwt.sign(
             { userId: user.id },
             REFRESH_TOKEN_SECRET,
-            { expiresIn: "7d" }
+            { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
         );
 
         await prisma.user.update({
@@ -153,25 +153,44 @@ export const logout = async (req, res) => {
 export const refreshToken = async (req, res) => {
     try {
         const { refreshToken } = req.cookies;
-        if (!refreshToken) return res.status(401).json({ error: "Unauthorized. No token provided." });
+        if (!refreshToken) {
+            return res.status(401).json({ error: "Unauthorized. No token provided." });
+        }
 
         const user = await prisma.user.findFirst({ where: { refreshToken } });
-        if (!user) return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
+        if (!user) {
+            return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
+        }
 
-        jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => {
-            if (err || user.id !== decoded.userId) {
-                return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
-            }
+        const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+        if (user.id !== decoded.userId) {
+            return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
+        }
 
-            const newAccessToken = jwt.sign(
-                { userId: user.id, email: user.email, role: user.role },
-                ACCESS_TOKEN_SECRET,
-                { expiresIn: "15m" }
-            );
+        const newRefreshToken = jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRES });
 
-            res.json({ accessToken: newAccessToken });
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { refreshToken: newRefreshToken },
         });
+
+        res.cookie("refreshToken", newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        const newAccessToken = jwt.sign(
+            { userId: user.id, email: user.email, role: user.role },
+            ACCESS_TOKEN_SECRET,
+            { expiresIn: process.env.ACCESS_TOKEN_EXPIRES }
+        );
+
+        res.json({ accessToken: newAccessToken });
+
     } catch (error) {
+        console.error("Error refreshing token:", error);
         res.status(500).json({ error: "Error refreshing token" });
     }
 };
