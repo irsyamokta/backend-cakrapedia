@@ -1,7 +1,9 @@
 import prisma from "../config/db.js";
 import { registerValidator, loginValidator } from "../utils/Validator.js";
+import { sendVerificationEmail } from "../utils/Email.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -25,10 +27,17 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) return res.status(409).json({ status: "fail", message: "User already exists" });
+
         const hashedPassword = await bcrypt.hash(password, 10);
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+
         const user = await prisma.user.create({
-            data: { name, email, password: hashedPassword },
+            data: { name, email, password: hashedPassword, verificationToken },
         });
+
+        await sendVerificationEmail(name, email, verificationToken);
 
         res.status(201).json(
             {
@@ -69,12 +78,13 @@ export const login = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return res.status(401).json({ status: "fail", message: "User not found" });
+        if (!user.isVerified) return res.status(401).json({ status: "fail", message: "Email not verified" });
 
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return res.status(401).json({ status: "fail", message: "Invalid credentials" });
 
         const accessToken = jwt.sign(
-            { userId: user.id, email: user.email, role: user.role  },
+            { userId: user.id, email: user.email, role: user.role },
             ACCESS_TOKEN_SECRET,
             { expiresIn: process.env.ACCESS_TOKEN_EXPIRES }
         );
@@ -192,5 +202,29 @@ export const refreshToken = async (req, res) => {
     } catch (error) {
         console.error("Error refreshing token:", error);
         res.status(500).json({ error: "Error refreshing token" });
+    }
+};
+
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        const user = await prisma.user.findFirst({ where: { verificationToken: token } });
+
+        if (!user) return res.status(400).json({ status: "fail", message: "Invalid verification token" });
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { isVerified: true, verificationToken: null },
+        });
+
+        res.json(
+            {
+                status: "success",
+                message: "Email verified successfully"
+            }
+        );
+    } catch (error) {
+        res.status(500).json({ status: "error", message: "Terjadi kesalahan", error: error.message });
     }
 };
