@@ -2,7 +2,7 @@ import prisma from "../config/db.js";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { sendForgotPasswordEmail } from "../utils/Email.js";
-import { changePasswordValidator, forgotPasswordValidator, resetPasswordValidator } from "../utils/validator.js";
+import { changePasswordValidator, forgotPasswordValidator, resetPasswordValidator } from "../utils/Validator.js";
 
 export const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
