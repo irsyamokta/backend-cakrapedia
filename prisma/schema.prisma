@@ -7,23 +7,130 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  JURNALIS
-  USER
-  SUPERADMIN
-}
-
 model User {
-  id                Int       @id @default(autoincrement())
+  id                String    @id @default(uuid())
   name              String
   email             String    @unique
   password          String
-  role              Role      @default(USER)
-  refreshToken      String?
+  role              Role      @default(READER)
+  status            Status    @default(PENDING)
+  birthDate         DateTime?
+  gender            Gender?
+  refreshToken      String?   @db.Text
   isVerified        Boolean   @default(false)
   verificationToken String?
   resetToken        String?
   resetExpires      DateTime?
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  newsAuthored     News[]          @relation("NewsAuthor")
+  newsEdited       News[]          @relation("NewsEditor")
+  likesDislikes    LikesDislikes[]
+  savedNews        SavedNews[]
+  comments         Comment[]
+  userRequests     UserRequest[]   @relation("UserRequestUser")
+  reviewedRequests UserRequest[]   @relation("UserRequestReviewedBy")
+}
+
+model News {
+  id         String     @id @default(uuid())
+  title      String
+  content    String
+  categoryId String?
+  category   Category?  @relation(fields: [categoryId], references: [id])
+  author     User       @relation(name: "NewsAuthor", fields: [authorId], references: [id])
+  authorId   String
+  editor     User?      @relation(name: "NewsEditor", fields: [editorId], references: [id])
+  editorId   String?
+  status     NewsStatus @default(DRAFT)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  likesDislikes LikesDislikes[]
+  savedNews     SavedNews[]
+  comments      Comment[]
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+  news News[]
+}
+
+model LikesDislikes {
+  id        String       @id @default(uuid())
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+  news      News         @relation(fields: [newsId], references: [id])
+  newsId    String
+  type      ReactionType
+  createdAt DateTime     @default(now())
+}
+
+model SavedNews {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  news      News     @relation(fields: [newsId], references: [id])
+  newsId    String
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  news      News     @relation(fields: [newsId], references: [id])
+  newsId    String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model UserRequest {
+  id            String        @id @default(uuid())
+  user          User          @relation(name: "UserRequestUser", fields: [userId], references: [id])
+  userId        String
+  roleRequested RoleRequested
+  portfolio     String
+  status        Status        @default(PENDING)
+  reviewedBy    User?         @relation(name: "UserRequestReviewedBy", fields: [reviewedById], references: [id])
+  reviewedById  String?
+  reviewedAt    DateTime?
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  JURNALIS
+  READER
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum NewsStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  REJECTED
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum RoleRequested {
+  JURNALIS
+  EDITOR
 }
