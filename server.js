@@ -10,7 +10,6 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 
-import AppError from "./src/utils/AppError.js";
 import authRoutes from "./src/routes/authRoutes.js";
 import userRoutes from "./src/routes/userRoutes.js";
 
@@ -44,8 +43,13 @@ app.use("/api/v1/user", userRoutes);
 
 app.get("/", (req, res) => res.send("Server is running"));
 
-app.use('*', (req, res, next) => {
-    next(new AppError(404, "fail", "Undefined route"));
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(err.statusCode || 500).json({
+        status: "error",
+        message: err.message || "Terjadi kesalahan pada server",
+        errors: err.details || undefined,
+    });
 });
 
 app.listen(PORT, () => {
