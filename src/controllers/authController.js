@@ -24,7 +24,7 @@ export const register = async (req, res) => {
         );
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, birthDate, gender } = req.body;
 
     try {
         const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -34,7 +34,7 @@ export const register = async (req, res) => {
         const verificationToken = crypto.randomBytes(32).toString("hex");
 
         const user = await prisma.user.create({
-            data: { name, email, password: hashedPassword, verificationToken },
+            data: { name, email, password: hashedPassword, birthDate: new Date(birthDate), gender, verificationToken },
         });
 
         await sendVerificationEmail(name, email, verificationToken);
@@ -46,7 +46,9 @@ export const register = async (req, res) => {
                 data: {
                     id: user.id,
                     name: user.name,
-                    email: user.email
+                    email: user.email,
+                    birthDate: user.birthDate,
+                    gender: user.gender
                 }
             }
         );
@@ -54,7 +56,7 @@ export const register = async (req, res) => {
         res.status(500).json(
             {
                 status: "error",
-                message: "Error registering user"
+                message: error.message || "Error registering user"
             }
         );
     }
@@ -77,10 +79,13 @@ export const login = async (req, res) => {
 
     try {
         const user = await prisma.user.findUnique({ where: { email } });
+
         if (!user) return res.status(401).json({ status: "fail", message: "User not found" });
+
         if (!user.isVerified) return res.status(401).json({ status: "fail", message: "Email not verified" });
 
         const isValid = await bcrypt.compare(password, user.password);
+
         if (!isValid) return res.status(401).json({ status: "fail", message: "Invalid credentials" });
 
         const accessToken = jwt.sign(
@@ -92,7 +97,7 @@ export const login = async (req, res) => {
         const refreshToken = jwt.sign(
             { userId: user.id },
             REFRESH_TOKEN_SECRET,
-            { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
+            { algorithm: "HS256", expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
         );
 
         await prisma.user.update({
@@ -124,7 +129,7 @@ export const login = async (req, res) => {
         res.status(500).json(
             {
                 staus: "error",
-                message: "Internal Server Error"
+                message: error.message || "Internal Server Error"
             }
         );
     }
@@ -133,9 +138,11 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
     try {
         const { refreshToken } = req.cookies;
+
         if (!refreshToken) return res.sendStatus(204);
 
         const user = await prisma.user.findFirst({ where: { refreshToken } });
+
         if (!user) return res.sendStatus(204);
 
         await prisma.user.update({
@@ -144,6 +151,7 @@ export const logout = async (req, res) => {
         });
 
         res.clearCookie("refreshToken", { httpOnly: true, sameSite: "Strict", path: "/" });
+
         res.json(
             {
                 status: "success",
@@ -163,21 +171,28 @@ export const logout = async (req, res) => {
 export const refreshToken = async (req, res) => {
     try {
         const { refreshToken } = req.cookies;
+
         if (!refreshToken) {
             return res.status(401).json({ error: "Unauthorized. No token provided." });
         }
 
         const user = await prisma.user.findFirst({ where: { refreshToken } });
+
         if (!user) {
             return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
         }
 
         const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+
         if (user.id !== decoded.userId) {
             return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
         }
 
-        const newRefreshToken = jwt.sign({ userId: user.id }, REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRES });
+        const newRefreshToken = jwt.sign(
+            { userId: user.id }, 
+            REFRESH_TOKEN_SECRET, 
+            { algorithm: "HS256", expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
+        );
 
         await prisma.user.update({
             where: { id: user.id },
@@ -200,7 +215,6 @@ export const refreshToken = async (req, res) => {
         res.json({ accessToken: newAccessToken });
 
     } catch (error) {
-        console.error("Error refreshing token:", error);
         res.status(500).json({ error: "Error refreshing token" });
     }
 };
