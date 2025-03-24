@@ -13,7 +13,7 @@ export const getProfile = async (req, res) => {
             return res.status(404).json(
                 {
                     status: "fail",
-                    message: "User not found",
+                    message: "Akun tidak ditemukan",
                 }
             );
         }
@@ -28,7 +28,7 @@ export const getProfile = async (req, res) => {
         res.status(500).json(
             {
                 status: "error",
-                error: "Error fetching user profile"
+                error: "Terjadi kesalahan pada server"
             }
         );
     }
@@ -45,7 +45,7 @@ export const updateProfile = async (req, res) => {
             return res.status(404).json(
                 {
                     status: "fail",
-                    message: "User not found",
+                    message: "Akun tidak ditemukan",
                 }
             );
         }
@@ -71,14 +71,14 @@ export const updateProfile = async (req, res) => {
 
         res.json({
             status: "success",
-            message: email !== existingUser.email ? "Verification email sent" : "User profile updated successfully",
+            message: email !== existingUser.email ? "Email verifikasi telah dikirim" : "User profile berhasil diperbarui",
             data: updatedUser
         });
     } catch (error) {
         res.status(500).json(
             {
                 status: "error",
-                error: error.message || "Error updating user profile"
+                error: "Terjadi kesalahan pada server"
             }
         );
     }

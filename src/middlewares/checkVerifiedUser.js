@@ -8,15 +8,30 @@ export const checkVerifiedUser = async (req, res, next) => {
         });
 
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json(
+                {
+                    status: "fail",
+                    message: "Akun tidak ditemukan"
+                }
+            );
         }
 
         if (!user.isVerified) {
-            return res.status(403).json({ message: "Email not verified. Please verify your email first." });
+            return res.status(403).json(
+                {
+                    status: "forbidden",
+                    message: "Email tidak diverifikasi. Silakan verifikasi email terlebih dahulu."
+                }
+            );
         }
 
         next();
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json(
+            {
+                status: "error",
+                message: "Terjadi kesalahan pada server"
+            }
+        );
     }
 };

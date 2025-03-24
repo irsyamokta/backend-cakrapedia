@@ -18,7 +18,7 @@ export const register = async (req, res) => {
         return res.status(400).json(
             {
                 status: "fail",
-                message: "Validation error",
+                message: "Validasi gagal",
                 error: error.details.map(err => err.message)
             }
         );
@@ -28,7 +28,13 @@ export const register = async (req, res) => {
 
     try {
         const existingUser = await prisma.user.findUnique({ where: { email } });
-        if (existingUser) return res.status(409).json({ status: "fail", message: "User already exists" });
+        
+        if (existingUser) return res.status(409).json(
+            {
+                status: "fail",
+                message: "Akun sudah terdaftar"
+            }
+        );
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationToken = crypto.randomBytes(32).toString("hex");
@@ -42,7 +48,7 @@ export const register = async (req, res) => {
         res.status(201).json(
             {
                 status: "success",
-                message: "User registered successfully",
+                message: "Akun berhasil dibuat",
                 data: {
                     id: user.id,
                     name: user.name,
@@ -56,7 +62,7 @@ export const register = async (req, res) => {
         res.status(500).json(
             {
                 status: "error",
-                message: error.message || "Error registering user"
+                message: "Terjadi kesalahan pada server",
             }
         );
     }
@@ -69,7 +75,7 @@ export const login = async (req, res) => {
         return res.status(400).json(
             {
                 status: "fail",
-                message: "Validation error",
+                message: "Validasi gagal",
                 error: error.details.map(err => err.message)
             }
         );
@@ -80,13 +86,28 @@ export const login = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({ where: { email } });
 
-        if (!user) return res.status(401).json({ status: "fail", message: "User not found" });
+        if (!user) return res.status(401).json(
+            {
+                status: "fail",
+                message: "Akun tidak ditemukan"
+            }
+        );
 
-        if (!user.isVerified) return res.status(401).json({ status: "fail", message: "Email not verified" });
+        if (!user.isVerified) return res.status(401).json(
+            {
+                status: "fail",
+                message: "Email belum diverifikasi"
+            }
+        );
 
         const isValid = await bcrypt.compare(password, user.password);
 
-        if (!isValid) return res.status(401).json({ status: "fail", message: "Invalid credentials" });
+        if (!isValid) return res.status(401).json(
+            {
+                status: "fail",
+                message: "Kredensial tidak valid"
+            }
+        );
 
         const accessToken = jwt.sign(
             { userId: user.id, email: user.email, role: user.role },
@@ -115,7 +136,7 @@ export const login = async (req, res) => {
         res.json(
             {
                 status: "success",
-                message: "Login successful",
+                message: "Login berhasil",
                 accessToken,
                 data: {
                     id: user.id,
@@ -129,7 +150,7 @@ export const login = async (req, res) => {
         res.status(500).json(
             {
                 staus: "error",
-                message: error.message || "Internal Server Error"
+                message: "Terjadi kesalahan pada server"
             }
         );
     }
@@ -155,14 +176,14 @@ export const logout = async (req, res) => {
         res.json(
             {
                 status: "success",
-                message: "Logout successful"
+                message: "Logout berhasil"
             }
         );
     } catch (error) {
         res.status(500).json(
             {
                 status: "error",
-                message: "Error logging out"
+                message: "Terjadi kesalahan pada server"
             }
         );
     }
@@ -173,24 +194,39 @@ export const refreshToken = async (req, res) => {
         const { refreshToken } = req.cookies;
 
         if (!refreshToken) {
-            return res.status(401).json({ error: "Unauthorized. No token provided." });
+            return res.status(401).json(
+                {
+                    status: "unauthorized",
+                    error: "Tidak ada token yang diberikan"
+                }
+            );
         }
 
         const user = await prisma.user.findFirst({ where: { refreshToken } });
 
         if (!user) {
-            return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
+            return res.status(403).json(
+                {
+                    status: "forbidden",
+                    error: "Refresh Token tidak valid"
+                }
+            );
         }
 
         const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
 
         if (user.id !== decoded.userId) {
-            return res.status(403).json({ error: "Forbidden. Invalid refresh token." });
+            return res.status(403).json(
+                {
+                    staus: "forbidden",
+                    error: "Refresh Token tidak valid"
+                }
+            );
         }
 
         const newRefreshToken = jwt.sign(
-            { userId: user.id }, 
-            REFRESH_TOKEN_SECRET, 
+            { userId: user.id },
+            REFRESH_TOKEN_SECRET,
             { algorithm: "HS256", expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
         );
 
@@ -215,7 +251,12 @@ export const refreshToken = async (req, res) => {
         res.json({ accessToken: newAccessToken });
 
     } catch (error) {
-        res.status(500).json({ error: "Error refreshing token" });
+        res.status(500).json(
+            {
+                ststus: "error",
+                error: "Terjadi kesalahan pada server"
+            }
+        );
     }
 };
 
@@ -225,7 +266,12 @@ export const verifyEmail = async (req, res) => {
 
         const user = await prisma.user.findFirst({ where: { verificationToken: token } });
 
-        if (!user) return res.status(400).json({ status: "fail", message: "Invalid verification token" });
+        if (!user) return res.status(400).json(
+            {
+                status: "fail",
+                message: "Token verifikasi tidak valid"
+            }
+        );
 
         await prisma.user.update({
             where: { id: user.id },
@@ -235,10 +281,15 @@ export const verifyEmail = async (req, res) => {
         res.json(
             {
                 status: "success",
-                message: "Email verified successfully"
+                message: "Email berhasil diverifikasi"
             }
         );
     } catch (error) {
-        res.status(500).json({ status: "error", message: "Terjadi kesalahan", error: error.message });
+        res.status(500).json(
+            {
+                status: "error",
+                message: "Terjadi kesalahan pada server"
+            }
+        );
     }
 };

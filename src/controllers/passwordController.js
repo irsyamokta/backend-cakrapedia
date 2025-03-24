@@ -12,17 +12,26 @@ export const changePassword = async (req, res) => {
     if (error) {
         return res.status(400).json({
             status: "fail",
-            message: "Validation error",
+            message: "Validasi gagal",
             error: error.details.map(err => err.message)
         });
     }
 
     try {
         const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-        if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+        if (!user) return res.status(404).json(
+            {
+                status: "fail",
+                message: "Akun tidak ditemukan"
+            });
 
         const isValid = await bcrypt.compare(currentPassword, user.password);
-        if (!isValid) return res.status(401).json({ status: "fail", message: "Invalid current password" });
+        if (!isValid) return res.status(401).json(
+            {
+                status: "fail",
+                message: "Password saat ini tidak sesuai"
+            }
+        );
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
@@ -32,9 +41,19 @@ export const changePassword = async (req, res) => {
             data: { password: hashedPassword },
         });
 
-        res.json({ status: "success", message: "Password changed successfully" });
+        res.json(
+            {
+                status: "success",
+                message: "Password berhasil diubah"
+            }
+        );
     } catch (error) {
-        res.status(500).json({ status: "error", message: "Error changing password" });
+        res.status(500).json(
+            {
+                status: "error",
+                message: "Terjadi kesalahan pada server"
+            }
+        );
     }
 };
 export const forgotPassword = async (req, res) => {
@@ -46,7 +65,7 @@ export const forgotPassword = async (req, res) => {
         return res.status(400).json(
             {
                 status: "fail",
-                message: "Validation error",
+                message: "Validasi gagal",
                 error: error.details.map(err => err.message)
             }
         );
@@ -54,7 +73,13 @@ export const forgotPassword = async (req, res) => {
 
     try {
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) return res.status(404).json({ status: "fail", message: "User not found" });
+
+        if (!user) return res.status(404).json(
+            {
+                status: "fail",
+                message: "Akun tidak ditemukan"
+            }
+        );
 
         const resetToken = crypto.randomBytes(32).toString("hex");
         const resetExpires = new Date(Date.now() + 3600000);
@@ -66,9 +91,19 @@ export const forgotPassword = async (req, res) => {
 
         await sendForgotPasswordEmail(user.name, email, resetToken);
 
-        res.json({ status: "success", message: "Password reset email sent" });
+        res.json(
+            {
+                status: "success",
+                message: "Password reset email berhasil dikirim"
+            }
+        );
     } catch (error) {
-        res.status(500).json({ status: "error", message: "Something went wrong" });
+        res.status(500).json(
+            {
+                status: "error",
+                message: "Terjadi kesalahan pada server"
+            }
+        );
     }
 };
 
@@ -81,7 +116,7 @@ export const resetPassword = async (req, res) => {
         return res.status(400).json(
             {
                 status: "fail",
-                message: "Validation error",
+                message: "Validasi gagal",
                 error: error.details.map(err => err.message)
             }
         );
@@ -89,7 +124,13 @@ export const resetPassword = async (req, res) => {
 
     try {
         const user = await prisma.user.findFirst({ where: { resetToken: token, resetExpires: { gt: new Date() } } });
-        if (!user) return res.status(400).json({ status: "fail", message: "Invalid or expired token" });
+
+        if (!user) return res.status(400).json(
+            {
+                status: "fail",
+                message: "Token reset tidak valid atau telah kadaluarsa"
+            }
+        );
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
@@ -98,8 +139,18 @@ export const resetPassword = async (req, res) => {
             data: { password: hashedPassword, resetToken: null, resetExpires: null }
         });
 
-        res.json({ status: "success", message: "Password reset successful" });
+        res.json(
+            {
+                status: "success",
+                message: "Password berhasil direset"
+            }
+        );
     } catch (error) {
-        res.status(500).json({ status: "error", message: "Something went wrong" });
+        res.status(500).json(
+            {
+                status: "error",
+                message: "Terjadi kesalahan pada server"
+            }
+        );
     }
 };
