@@ -28,7 +28,20 @@ export const registerValidator = (data) => {
                 "string.min": "Password minimal harus 8 karakter!",
                 "string.pattern.base": "Password harus mengandung huruf, angka, dan karakter spesial!",
                 "any.required": "Password tidak boleh kosong!"
-            })
+            }),
+
+        birthDate: Joi.date().iso()
+            .required()
+            .messages({
+                "any.required": "Tanggal lahir tidak boleh kosong!"
+            }),
+
+        gender: Joi.string()
+            .valid("MALE", "FEMALE", "OTHER")
+            .required()
+            .messages({
+                "any.required": "Jenis kelamin tidak boleh kosong!"
+            }),
     });
 
     return schema.validate(data, { abortEarly: false });
