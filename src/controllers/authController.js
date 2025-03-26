@@ -20,7 +20,8 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
     try {
-        await authService.logout(req.cookies);
+        await authService.logout(req.cookies, res.clearCookie);
+        res.clearCookie("refreshToken", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Strict" });
         res.json({ status: "success", message: "Logout berhasil" });
     } catch (error) {
         next(error);
