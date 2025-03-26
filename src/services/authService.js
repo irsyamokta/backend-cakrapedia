@@ -5,6 +5,7 @@ import * as tokenService from "./tokenService.js";
 import * as emailService from "../utils/email/index.js";
 import { registerValidator, loginValidator } from "../utils/validators/index.js";
 import { BadRequestError, UnauthorizedError, ForbiddenError, ConflictError } from "../utils/errors/errors.js";
+import { clear } from "console";
 
 export const register = async (data) => {
     const { error } = registerValidator(data);
@@ -12,7 +13,7 @@ export const register = async (data) => {
     if (error) {
         const messages = error.details.map(err => err.message);
         throw new BadRequestError("Validasi gagal", messages);
-    } 
+    }
 
     const { name, email, password, birthDate, gender } = data;
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -37,11 +38,11 @@ export const register = async (data) => {
 
 export const login = async (data, res) => {
     const { error } = loginValidator(data);
-    
+
     if (error) {
         const messages = error.details.map(err => err.message);
         throw new BadRequestError("Validasi gagal", messages);
-    } 
+    }
 
     const { email, password } = data;
     const user = await prisma.user.findUnique({ where: { email } });
@@ -71,6 +72,7 @@ export const logout = async (cookies) => {
     if (!refreshToken) return;
 
     const user = await prisma.user.findFirst({ where: { refreshToken } });
+
     if (user) {
         await prisma.user.update({ where: { id: user.id }, data: { refreshToken: null } });
     }
