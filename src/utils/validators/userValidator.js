@@ -41,3 +41,26 @@ export const updateProfileValidator = (data) => {
 
     return schema.validate(data, { abortEarly: false });
 };
+
+export const requestRoleValidator = (data) => {
+    const schema = Joi.object({
+        roleRequested: Joi.string()
+            .valid("JURNALIS", "EDITOR")
+            .required()
+            .empty("")
+            .messages({
+                "any.required": "Role tidak boleh kosong!",
+                "any.only": "Role tidak valid! Harus JURNALIS atau EDITOR",
+                "string.empty": "Role tidak boleh kosong!"
+            }),
+        portfolio: Joi.string()
+            .required()
+            .empty("")
+            .messages({
+                "any.required": "Portfolio tidak boleh kosong!",
+                "string.empty": "Portfolio tidak boleh kosong!"
+            })
+    });
+
+    return schema.validate(data, { abortEarly: false });
+};
