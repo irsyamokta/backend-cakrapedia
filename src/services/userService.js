@@ -1,7 +1,7 @@
 import prisma from "../config/db.js";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/email/index.js";
-import { NotFoundError } from "../utils/errors/errors.js";
+import { NotFoundError, BadRequestError } from "../utils/errors/errors.js";
 
 export const getUserProfile = async (userId) => {
     const user = await prisma.user.findUnique({
@@ -43,4 +43,25 @@ export const updateUserProfile = async (userId, { name, email, birthDate, gender
     });
 
     return { updatedUser, message };
+};
+
+export const requestRoleChange = async (userId, data) => {
+
+    const { roleRequested, portfolio } = data;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundError("Akun tidak ditemukan");
+
+    const existingRequest = await prisma.userRequest.findFirst({
+        where: {
+            userId,
+            status: "PENDING"
+        }
+    });
+
+    if (existingRequest) throw new BadRequestError("Tidak dapat membuat permintaan baru", ["Permintaan sudah dikirim sebelumnya"]);
+
+    const userRequest = await prisma.userRequest.create({ data: { userId, roleRequested, portfolio }, });
+
+    return { message: "Permintan berhasil dikirim", userRequest };
 };
