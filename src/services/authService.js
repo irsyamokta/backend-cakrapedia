@@ -5,7 +5,6 @@ import * as tokenService from "./tokenService.js";
 import * as emailService from "../utils/email/index.js";
 import { registerValidator, loginValidator } from "../utils/validators/index.js";
 import { BadRequestError, UnauthorizedError, ForbiddenError, ConflictError } from "../utils/errors/errors.js";
-import { clear } from "console";
 
 export const register = async (data) => {
     const { error } = registerValidator(data);
