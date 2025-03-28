@@ -22,17 +22,32 @@ export const register = async (data) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(32).toString("hex");
 
-    const user = await prisma.user.create({
-        data: { name, email, password: hashedPassword, birthDate: new Date(birthDate), gender, verificationToken },
-    });
+    try {
+        const user = await prisma.$transaction(async (tx) => {
+            const newUser = await tx.user.create({
+                data: {
+                    name,
+                    email,
+                    password: hashedPassword,
+                    birthDate: new Date(birthDate),
+                    gender,
+                    verificationToken
+                },
+            });
 
-    await emailService.sendVerificationEmail(name, email, verificationToken);
+            await emailService.sendVerificationEmail(name, email, verificationToken);
 
-    return {
-        status: "success",
-        message: "Akun berhasil dibuat",
-        data: { id: user.id, name: user.name, email: user.email, birthDate: user.birthDate, gender: user.gender },
-    };
+            return newUser;
+        });
+
+        return {
+            status: "success",
+            message: "Akun berhasil dibuat",
+            data: { id: user.id, name: user.name, email: user.email, birthDate: user.birthDate, gender: user.gender },
+        };
+    } catch (error) {
+        console.log(error);
+    }
 };
 
 export const login = async (data, res) => {
