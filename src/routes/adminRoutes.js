@@ -1,5 +1,5 @@
 import express from "express";
-import  { isAdmin }  from "../middlewares/adminMiddleware.js";
+import  { isAdmin }  from "../middlewares/roleMiddleware.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { getDashboard, reviewRequest } from "../controllers/adminController.js";
 
