@@ -30,3 +30,14 @@ export const reviewRoleRequest = async (adminId, data) => {
 
     return { message: `Permintaan ${action === "APPROVED" ? "disetujui" : "ditolak"}`, updatedRequest };
 }
+
+export const createCategory = async (data) => {
+    const { name } = data;
+    
+    const checkCategory = await prisma.category.findUnique({ where: { name } });
+    if (checkCategory) throw new BadRequestError("Kategori sudah ada", ["Tidak dapat membuat kategori baru"]);
+
+    const category = await prisma.category.create({ data: { name } });
+
+    return { message: "Kategori berhasil dibuat", category };
+};
