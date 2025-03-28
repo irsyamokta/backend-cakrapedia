@@ -39,7 +39,7 @@ export const refreshToken = async (req, res, next) => {
 
 export const verifyEmail = async (req, res, next) => {
     try {
-        const result = await authService.verifyEmail(req.query.token);
+        const result = await authService.verifyEmail(req.params.token);
         res.json(result);
     } catch (error) {
         next(error);
