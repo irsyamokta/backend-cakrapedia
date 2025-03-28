@@ -1,8 +1,4 @@
-import { 
-    changeUserPassword, 
-    forgotUserPassword, 
-    resetUserPassword 
-} from "../services/passwordService.js";
+import * as passwordService from "../services/passwordService.js";
 import { changePasswordValidator, forgotPasswordValidator, resetPasswordValidator } from "../utils/validators/index.js";
 
 export const changePassword = async (req, res, next) => {
@@ -10,7 +6,7 @@ export const changePassword = async (req, res, next) => {
         const { error } = changePasswordValidator(req.body);
         if (error) throw new BadRequestError("Validasi gagal", error.details.map(err => err.message));
 
-        const response = await changeUserPassword(req.user.userId, req.body.currentPassword, req.body.newPassword);
+        const response = await passwordService.changeUserPassword(req.user.userId, req.body.currentPassword, req.body.newPassword);
         res.json({ status: "success", ...response });
     } catch (error) {
         next(error);
@@ -22,7 +18,7 @@ export const forgotPassword = async (req, res, next) => {
         const { error } = forgotPasswordValidator(req.body);
         if (error) throw new BadRequestError("Validasi gagal", error.details.map(err => err.message));
 
-        const response = await forgotUserPassword(req.body.email);
+        const response = await passwordService.forgotUserPassword(req.body.email);
         res.json({ status: "success", ...response });
     } catch (error) {
         next(error);
@@ -34,7 +30,7 @@ export const resetPassword = async (req, res, next) => {
         const { error } = resetPasswordValidator(req.body);
         if (error) throw new BadRequestError("Validasi gagal", error.details.map(err => err.message));
 
-        const response = await resetUserPassword(req.body.token, req.body.newPassword);
+        const response = await passwordService.resetUserPassword(req.body.token, req.body.newPassword);
         res.json({ status: "success", ...response });
     } catch (error) {
         next(error);
