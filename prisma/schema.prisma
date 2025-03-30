@@ -16,6 +16,7 @@ model User {
   status            Status    @default(PENDING)
   birthDate         DateTime?
   gender            Gender?
+  imageUrl          String?
   refreshToken      String?   @db.Text
   isVerified        Boolean   @default(false)
   verificationToken String?
@@ -36,7 +37,8 @@ model User {
 model News {
   id         String     @id @default(uuid())
   title      String
-  content    String
+  content    String     @db.LongText
+  imageUrl   String?
   categoryId String?
   category   Category?  @relation(fields: [categoryId], references: [id])
   author     User       @relation(name: "NewsAuthor", fields: [authorId], references: [id])
