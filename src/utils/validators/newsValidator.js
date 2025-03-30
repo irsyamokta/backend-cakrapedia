@@ -25,6 +25,7 @@ export const createNewsValidator = (data) => {
                 "string.empty": "Konten tidak boleh kosong!",
                 "any.required": "Konten tidak boleh kosong!"
             }),
+
         categoryId: Joi.string()
             .empty("")
             .required()
@@ -58,6 +59,14 @@ export const updateNewsValidator = (data) => {
                 "string.max": "Isi maksimal 1000 karakter!",
                 "any.required": "Isi tidak boleh kosong!"
             }),
+
+        categoryId: Joi.string()
+            .empty("")
+            .required()
+            .messages({
+                "string.empty": "Kategori tidak boleh kosong!",
+                "any.required": "Kategori tidak boleh kosong!"
+            })
     });
 
     return schema.validate(data, { abortEarly: false });
