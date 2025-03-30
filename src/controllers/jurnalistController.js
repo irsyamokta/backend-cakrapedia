@@ -11,7 +11,7 @@ export const getNews = async (req, res, next) => {
 
 export const createNews = async (req, res, next) => {
     try {
-        const response = await jurnalistService.createNews(req.body);
+        const response = await jurnalistService.createNews(req.user.userId, req.body, req.file);
         res.status(201).json({status: "success", ...response});  
     } catch (error) {
         next(error);
@@ -20,7 +20,7 @@ export const createNews = async (req, res, next) => {
 
 export const updateNews = async (req, res, next) => {
     try {
-        const response = await jurnalistService.updateNews(req.user.userId, req.params.newsId, req.body);
+        const response = await jurnalistService.updateNews(req.user.userId, req.params.newsId, req.body, req.file);
         res.json({ status: "success", ...response });
     } catch (error) {
         next(error);
