@@ -1,20 +1,16 @@
 import prisma from "../config/db.js";
 import { BadRequestError, NotFoundError } from "../utils/errors/errors.js";
 
-export const dashboard = async (req, res) => {
-
-    const users = await prisma.user.findMany({ where: { role: "READER" } });
+export const getUsers = async () => {
+    const reader = await prisma.user.findMany({ where: { role: "READER" } });
+    const jurnalist = await prisma.user.findMany({ where: { role: "JURNALIS" } });
+    const editor = await prisma.user.findMany({ where: { role: "EDITOR" } });
     const admins = await prisma.user.findMany({ where: { role: "ADMIN" } });
 
-    return {
-        status: "success",
-        message: "Dashboard berhasil diakses",
-        data: { users, admins }
-    }
+    return { data: { users: { reader, jurnalist, editor }, admins } };
 };
 
 export const reviewRoleRequest = async (adminId, data) => {
-
     const { requestId, action } = data;
     const request = await prisma.userRequest.findUnique({ where: { id: requestId }, include: { user: true } });
 
@@ -33,7 +29,7 @@ export const reviewRoleRequest = async (adminId, data) => {
 
 export const createCategory = async (data) => {
     const { name } = data;
-    
+
     const checkCategory = await prisma.category.findUnique({ where: { name } });
     if (checkCategory) throw new BadRequestError("Kategori sudah ada", ["Tidak dapat membuat kategori baru"]);
 
