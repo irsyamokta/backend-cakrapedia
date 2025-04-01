@@ -1,12 +1,14 @@
 import express from "express";
-import  { isAdmin }  from "../middlewares/roleMiddleware.js";
+import  { hasRole }  from "../middlewares/roleMiddleware.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { getDashboard, reviewRequest, createCategory } from "../controllers/adminController.js";
+import { getUsers, reviewRequest, createCategory } from "../controllers/adminController.js";
+import { getAllNews } from "../controllers/newsController.js";
 
 const router = express.Router();
 
-router.get("/dashboard", authMiddleware, isAdmin, getDashboard);
-router.put("/review-request", authMiddleware, isAdmin, reviewRequest);
-router.post("/create-category", authMiddleware, isAdmin, createCategory);
+router.get("/users", authMiddleware, hasRole("ADMIN"), getUsers);
+router.get("/news", authMiddleware, hasRole("ADMIN"), getAllNews);
+router.put("/review-request", authMiddleware, hasRole("ADMIN"), reviewRequest);
+router.post("/create-category", authMiddleware, hasRole("ADMIN"), createCategory);
 
 export default router;
