@@ -29,7 +29,7 @@ export const updateProfileValidator = (data) => {
             }),
 
         gender: Joi.string()
-            .valid("MALE", "FEMALE", "OTHER")
+            .valid("MALE", "FEMALE")
             .required()
             .empty("")
             .messages({
@@ -52,13 +52,6 @@ export const requestRoleValidator = (data) => {
                 "any.required": "Role tidak boleh kosong!",
                 "any.only": "Role tidak valid! Harus JURNALIS atau EDITOR",
                 "string.empty": "Role tidak boleh kosong!"
-            }),
-        portfolio: Joi.string()
-            .required()
-            .empty("")
-            .messages({
-                "any.required": "Portfolio tidak boleh kosong!",
-                "string.empty": "Portfolio tidak boleh kosong!"
             })
     });
 
