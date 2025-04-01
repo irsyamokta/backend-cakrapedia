@@ -1,35 +1,19 @@
-export const isAdmin = (req, res, next) => {
-    if (req.user.role !== "ADMIN" || req.user.status !== "APPROVED") {
-        return res.status(403).json(
-            {
-                status: "forbidden",
-                message: "Anda bukan admin"
-            }
-        );
-    }
-    next();
-};
+export const hasRole = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                status: "unauthorized",
+                message: "Silakan login terlebih dahulu"
+            });
+        }
 
-export const isJurnalist = (req, res, next) => {
-    if (req.user.role !== "JURNALIS" || req.user.status !== "APPROVED") {
-        return res.status(403).json(
-            {
+        if (!roles.includes(req.user.role) || req.user.status !== "APPROVED") {
+            return res.status(403).json({
                 status: "forbidden",
-                message: "Anda bukan jurnalis"
-            }
-        );
-    }
-    next();
-};
+                message: `Anda tidak memiliki akses sebagai ${roles.join(" atau ")}`
+            });
+        }
 
-export const isEditor = (req, res, next) => {
-    if (req.user.role !== "EDITOR" || req.user.status !== "APPROVED") {
-        return res.status(403).json(
-            {
-                status: "forbidden",
-                message: "Anda bukan editor"
-            }
-        );
-    }
-    next();
+        next();
+    };
 };
