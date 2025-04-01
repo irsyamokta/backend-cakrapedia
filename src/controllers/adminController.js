@@ -1,8 +1,8 @@
 import * as adminService from "../services/adminService.js";
 
-export const getDashboard = async (req, res, next) => {
+export const getUsers = async (req, res, next) => {
     try {
-        const response = await adminService.dashboard();
+        const response = await adminService.getUsers();
         return res.json({ status: "success", ...response });
     } catch (error) {
         next(error);
