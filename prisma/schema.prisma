@@ -112,18 +112,19 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
+  SUSPENED
 }
 
 enum Gender {
   MALE
   FEMALE
-  OTHER
 }
 
 enum NewsStatus {
   DRAFT
   REVIEW
   PUBLISHED
+  UNPUBLISHED
   REJECTED
 }
 
