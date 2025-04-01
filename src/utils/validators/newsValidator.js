@@ -71,3 +71,19 @@ export const updateNewsValidator = (data) => {
 
     return schema.validate(data, { abortEarly: false });
 };
+
+export const newsStatusValidator = (data) => {
+    const schema = Joi.object({
+        status: Joi.string()
+            .valid("DRAFT", "REVIEW", "PUBLISHED", "UNPUBLISHED", "REJECTED")
+            .required()
+            .empty("")
+            .messages({
+                "any.required": "Status tidak boleh kosong!",
+                "any.only": "Status tidak valid! Harus DRAFT, REVIEW, PUBLISHED, REJECTED",
+                "string.empty": "Status tidak boleh kosong!"
+            })
+    });
+
+    return schema.validate(data, { abortEarly: false });
+};
