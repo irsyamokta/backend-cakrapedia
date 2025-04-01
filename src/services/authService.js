@@ -111,7 +111,7 @@ export const verifyEmail = async (token) => {
     const user = await prisma.user.findFirst({ where: { verificationToken: token } });
     if (!user) throw new BadRequestError("Token verifikasi tidak valid");
 
-    await prisma.user.update({ where: { id: user.id }, data: { isVerified: true, verificationToken: null } });
+    await prisma.user.update({ where: { id: user.id }, data: { isVerified: true, verificationToken: null, status: "APPROVED" } });
 
     return { status: "success", message: "Email berhasil diverifikasi" };
 };
