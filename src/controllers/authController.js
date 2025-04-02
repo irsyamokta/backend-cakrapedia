@@ -3,7 +3,7 @@ import * as authService from "../services/authService.js";
 export const register = async (req, res, next) => {
     try {
         const result = await authService.register(req.body);
-        res.status(201).json(result);
+        res.status(201).json({ status: "success", ...result });
     } catch (error) {
         next(error);
     }
@@ -12,7 +12,7 @@ export const register = async (req, res, next) => {
 export const login = async (req, res, next) => {
     try {
         const result = await authService.login(req.body, res);
-        res.json(result);
+        res.json({ status: "success", ...result });
     } catch (error) {
         next(error);
     }
@@ -40,7 +40,7 @@ export const refreshToken = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
     try {
         const result = await authService.verifyEmail(req.params.token);
-        res.json(result);
+        res.json({ status: "success", result });
     } catch (error) {
         next(error);
     }
