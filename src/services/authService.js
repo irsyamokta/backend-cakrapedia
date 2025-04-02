@@ -41,7 +41,6 @@ export const register = async (data) => {
         });
 
         return {
-            status: "success",
             message: "Akun berhasil dibuat",
             data: { id: user.id, name: user.name, email: user.email, birthDate: user.birthDate, gender: user.gender },
         };
@@ -74,7 +73,6 @@ export const login = async (data, res) => {
     res.cookie("refreshToken", refreshToken, tokenService.cookieOptions());
 
     return {
-        status: "success",
         message: "Login berhasil",
         accessToken,
         data: { id: user.id, name: user.name, email: user.email, role: user.role },
@@ -113,5 +111,5 @@ export const verifyEmail = async (token) => {
 
     await prisma.user.update({ where: { id: user.id }, data: { isVerified: true, verificationToken: null, status: "APPROVED" } });
 
-    return { status: "success", message: "Email berhasil diverifikasi" };
+    return { message: "Email berhasil diverifikasi" };
 };
