@@ -1,7 +1,7 @@
-import { registerValidator, loginValidator } from "./authValidator.js";
-import { changePasswordValidator, resetPasswordValidator, forgotPasswordValidator } from "./passwordValidator.js";
-import { updateProfileValidator, requestRoleValidator } from "./userValidator.js";
-import { createNewsValidator, updateNewsValidator, newsStatusValidator } from "./newsValidator.js";
+import { registerValidator, loginValidator } from "./validateAuth.js";
+import { changePasswordValidator, resetPasswordValidator, forgotPasswordValidator } from "./validatePassword.js";
+import { updateProfileValidator, requestRoleValidator } from "./validateUser.js";
+import { createNewsValidator, updateNewsValidator, newsStatusValidator } from "./validateNews.js";
 
 export { 
     registerValidator, 

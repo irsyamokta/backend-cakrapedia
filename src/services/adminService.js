@@ -1,5 +1,5 @@
 import prisma from "../config/db.js";
-import { BadRequestError, NotFoundError } from "../utils/errors/errors.js";
+import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
 export const getUsers = async () => {
     const reader = await prisma.user.findMany({ where: { role: "READER" } });

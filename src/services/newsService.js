@@ -1,7 +1,7 @@
 import prisma from "../config/db.js";
 import { createNewsValidator, updateNewsValidator, newsStatusValidator } from "../utils/validators/index.js";
 import { uploadImage } from "./uploadService.js";
-import { BadRequestError, NotFoundError } from "../utils/errors/errors.js";
+import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
 export const getAllNews = async () => {
     return { news: await prisma.news.findMany({ include: { author: { select: { id: true, name: true } } } }) };
@@ -31,9 +31,9 @@ export const createNews = async (userId, data, file) => {
     const { title, content, categoryId } = data;
     const imageUrl = await uploadImage(file, "news");
 
-    const author = await prisma.user.findUnique({ 
-        where: { id: userId, role: { in: ["JURNALIS", "EDITOR"] } }, 
-        select: { id: true } 
+    const author = await prisma.user.findUnique({
+        where: { id: userId, role: { in: ["JURNALIS", "EDITOR"] } },
+        select: { id: true }
     });
     if (!author) throw new NotFoundError("Penulis tidak ditemukan");
 
@@ -59,7 +59,7 @@ export const updateNews = async (userId, newsId, data, file) => {
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true } });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id) 
+    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id)
         throw new BadRequestError("Anda tidak memiliki izin untuk mengubah berita ini", ["Anda bukan penulis berita ini"]);
 
     const updatedNews = await prisma.news.update({
@@ -82,7 +82,7 @@ export const deleteNews = async (userId, newsId) => {
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, role: true } });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id) 
+    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id)
         throw new BadRequestError("Anda tidak memiliki izin untuk menghapus berita ini", ["Anda bukan penulis berita ini"]);
 
     await prisma.news.delete({ where: { id: newsId } });
