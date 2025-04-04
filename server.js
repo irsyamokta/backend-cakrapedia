@@ -13,7 +13,7 @@ import morgan from "morgan";
 import authRoutes from "./src/routes/auth.routes.js";
 import passwordRoutes from "./src/routes/password.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
-// import adminRoutes from "./src/routes/adminRoutes.js";
+import adminRoutes from "./src/routes/admin.routes.js";
 // import newsRoutes from "./src/routes/newsRoutes.js";
 
 const app = express();
@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/password", passwordRoutes);
 app.use("/api/v1/user", userRoutes);
-// app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/admin", adminRoutes);
 // app.use("/api/v1/news", newsRoutes);
 // app.use("/api/v1/editor", newsRoutes);
 
