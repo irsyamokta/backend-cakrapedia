@@ -1,5 +1,14 @@
 import * as userService from "../services/user.service.js"
 
+export const getUsers = async (req, res, next) => {
+    try {
+        const result = await userService.getUsers();
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const getUserProfile = async (req, res, next) => {
     try {
         const result = await userService.getUserProfile(req.user.userId);
