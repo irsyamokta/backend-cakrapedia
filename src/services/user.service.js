@@ -1,9 +1,19 @@
 import crypto from "crypto";
 import * as userRepository from "../repositories/user.repository.js"
+import * as roleRequestRpository from "../repositories/roleRequest.repository.js"
 import { uploadImage, uploadPDF } from "../utils/upload.utils.js";
 import { sendVerificationEmail } from "../utils/email/index.js";
 import { NotFoundError, BadRequestError } from "../utils/errors.utils.js";
 import { updateProfileValidator, requestRoleValidator } from "../utils/validators/index.js";
+
+export const getUsers = async () => {
+    const reader = await userRepository.getUsers("READER");
+    const jurnalist = await userRepository.getUsers("JURNALIS");
+    const editor = await userRepository.getUsers("EDITOR");
+    const admin = await userRepository.getUsers("ADMIN");
+
+    return { reader, jurnalist, editor, admin }
+};
 
 export const getUserProfile = async (userId) => {
     const user = await userRepository.getUserById(userId, { id: true, name: true, email: true, birthDate: true, gender: true, role: true, imageUrl: true });
@@ -57,10 +67,10 @@ export const requestRoleChange = async (userId, data, file) => {
     const { roleRequested } = data;
     const pdfUrl = await uploadPDF(file);
 
-    const existingRequest = await userRepository.getExistingRequest(userId, "PENDING");
+    const existingRequest = await roleRequestRpository.getExistingRequest(userId, "PENDING");
     if (existingRequest) throw new BadRequestError("Tidak dapat membuat permintaan baru", ["Permintaan sudah dikirim sebelumnya"]);
 
-    const requestRole = await userRepository.createUserRequestRole(userId, roleRequested, pdfUrl.fileUrl)
+    const requestRole = await roleRequestRpository.createUserRequestRole(userId, roleRequested, pdfUrl.fileUrl)
 
     return { message: "Permintaan berhasil dikirim", requestRole }
 };
