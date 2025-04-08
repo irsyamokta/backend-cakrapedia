@@ -13,8 +13,6 @@ export const createNews = async (userId, data, file) => {
     const { title, content, categoryId } = data;
     const imageUrl = await uploadImage(file, "news");
 
-    if (!category) throw new NotFoundError("Kategori tidak ditemukan");
-
     const author = await newsRepository.getAuthor(userId);
     if (!author) throw new NotFoundError("Penulis tidak ditemukan");
 
