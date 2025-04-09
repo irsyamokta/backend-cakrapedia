@@ -8,3 +8,12 @@ export const createNews = async (req, res, next) => {
         next(error);
     }
 };
+
+export const updateNews = async (req, res, next) => {
+    try {
+        const response = await newsService.updateNews(req.user.userId, req.params.newsId, req.body, req.file);
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
