@@ -23,3 +23,5 @@ export const updateNews = async (newsId, data) => {
         data
     });
 };
+
+export const deleteNews = async (newsId) => prisma.news.delete({ where: { id: newsId } });
