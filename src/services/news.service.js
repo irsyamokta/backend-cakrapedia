@@ -51,3 +51,18 @@ export const updateNews = async (userId, newsId, data, file) => {
 
     return { message: "Berita berhasil diperbarui", updatedNews };
 };
+
+export const deleteNews = async (userId, newsId) => {
+    const news = await newsRepository.getNewsById(newsId);
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
+
+    const user = await userRepository.getUserById(userId, { id: true, role: true });
+    if (!user) throw new NotFoundError("Akun tidak ditemukan");
+
+    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id)
+        throw new BadRequestError("Anda tidak memiliki izin untuk menghapus berita ini", ["Anda bukan penulis berita ini"]);
+
+    await newsRepository.deleteNews(newsId);
+
+    return { message: "Berita berhasil dihapus" };
+};
