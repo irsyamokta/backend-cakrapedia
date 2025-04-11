@@ -17,3 +17,12 @@ export const updateNews = async (req, res, next) => {
         next(error);
     }
 };
+
+export const deleteNews = async (req, res, next) => {
+    try {
+        const response = await newsService.deleteNews(req.user.userId, req.params.newsId);
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
