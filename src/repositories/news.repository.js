@@ -5,6 +5,14 @@ export const getAuthor = async (userId) => prisma.user.findUnique({ where: { id:
 
 export const getNewsById = async(newsId) => prisma.news.findUnique({ where: { id: newsId } });
 
+export const getNews = async () => prisma.news.findMany({ include: { author: { select: { id: true, name: true } } } });
+
+export const getNewsPublished = async () => prisma.news.findMany({ where: { status: "PUBLISHED" }, include: { author: { select: { id: true, name: true } } } });
+
+export const getNewsByCategory = async (categoryId) => prisma.news.findMany({ where: { categoryId }, include: { author: { select: { id: true, name: true } } } });
+
+export const getNewsByAuthor = async (userId) => prisma.news.findMany({ where: { authorId: userId } });
+
 export const createNews = async (title, content, categoryId, imageUrl, userId) => {
     return prisma.news.create({
         data: {
