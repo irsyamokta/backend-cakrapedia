@@ -1,5 +1,50 @@
 import * as newsService from "../services/news.service.js";
 
+export const getNews = async (req, res, next) => {
+    try {
+        const response = await newsService.getNews();
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getNewsById = async (req, res, next) => {
+    try {
+        const response = await newsService.getNewsById(req.params.newsId);
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getNewsByCategory = async (req, res, next) => {
+    try {
+        const response = await newsService.getNewsByCategory(req.params.categoryId);
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getNewsByAuthor = async (req, res, next) => {
+    try {
+        const response = await newsService.getNewsByAuthor(req.user.userId);
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getNewsPublished = async (req, res, next) => {
+    try {
+        const response = await newsService.getNewsPublished();
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+}
+
 export const createNews = async (req, res, next) => {
     try {
         const response = await newsService.createNews(req.user.userId, req.body, req.file);
