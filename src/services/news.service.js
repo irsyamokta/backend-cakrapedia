@@ -96,3 +96,22 @@ export const deleteNews = async (userId, newsId) => {
 
     return { message: "Berita berhasil dihapus" };
 };
+
+export const newsStatus = async (userId, newsId, data) => {
+    const { error } = newsStatusValidator(data);
+    if (error) throw new BadRequestError("Validasi gagal", error.details.map(err => err.message));
+
+    const news = await newsRepository.getNewsById(newsId);
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
+
+    const user = await userRepository.getUserById(userId, { id: true, role: true });
+    if (!user) throw new NotFoundError("Akun tidak ditemukan");
+
+    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id)
+        throw new BadRequestError("Anda tidak memiliki izin untuk mengubah status berita ini", ["Anda bukan penulis berita ini"]);
+
+    const { status } = data;
+    const updatedNews = await newsRepository.newsStatus(newsId, status);
+
+    return { message: "Status berita berhasil diperbarui", updatedNews };
+};
