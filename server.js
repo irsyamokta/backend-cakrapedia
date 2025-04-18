@@ -15,6 +15,7 @@ import passwordRoutes from "./src/routes/password.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
 import adminRoutes from "./src/routes/admin.routes.js";
 import newsRoutes from "./src/routes/news.routes.js";
+import newsActionRoutes from "./src/routes/newsAction.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -46,6 +47,7 @@ app.use("/api/v1/password", passwordRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/news", newsRoutes);
+app.use("/api/v1/news-action", newsActionRoutes);
 // app.use("/api/v1/editor", newsRoutes);
 
 app.get("/", (req, res) => res.send("Server is running"));
