@@ -20,6 +20,8 @@ import newsActionRoutes from "./src/routes/newsAction.routes.js";
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.set('trust proxy', 1);
+
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
     max: 100,
@@ -62,5 +64,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on PORT${PORT}`);
 });
