@@ -11,4 +11,4 @@ router.get("/verify/:token", verifyEmail);
 router.post("/login", login);
 router.post("/logout", authMiddleware, checkVerifiedUser, logout);
 
-export default router
+export default router;
