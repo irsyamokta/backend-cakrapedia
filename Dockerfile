@@ -1,4 +1,4 @@
-FROM node:18.20.0-slim
+FROM node:23.11.0-slim
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,6 @@ RUN npm install
 
 COPY . .
 
-ENV PORT=8080
 EXPOSE 8080
 
-CMD ["node", "server.js"]
+CMD ["npm", "run", "start"]
