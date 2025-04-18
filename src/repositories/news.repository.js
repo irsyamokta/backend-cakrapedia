@@ -33,3 +33,5 @@ export const updateNews = async (newsId, data) => {
 };
 
 export const deleteNews = async (newsId) => prisma.news.delete({ where: { id: newsId } });
+
+export const newsStatus = async (newsId, status) => prisma.news.update({ where: { id: newsId }, data: { status } });
