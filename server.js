@@ -18,7 +18,7 @@ import newsRoutes from "./src/routes/news.routes.js";
 import newsActionRoutes from "./src/routes/newsAction.routes.js";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
