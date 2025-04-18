@@ -71,3 +71,12 @@ export const deleteNews = async (req, res, next) => {
         next(error);
     }
 };
+
+export const newsStatus = async (req, res, next) => {
+    try {
+        const response = await newsService.newsStatus(req.user.userId, req.params.newsId, req.body);
+        res.json({...response});
+    } catch (error) {
+        next(error);
+    }
+};
