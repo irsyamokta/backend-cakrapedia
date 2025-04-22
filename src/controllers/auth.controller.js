@@ -40,7 +40,7 @@ export const refreshToken = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
     try {
         const result = await authService.verifyEmail(req.params.token);
-        res.status(200).json({ status: "success", ...result });
+        res.redirect(process.env.FRONTEND_URL);
     } catch (error) {
         next(error);
     }
