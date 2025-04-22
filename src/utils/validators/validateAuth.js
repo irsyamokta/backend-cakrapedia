@@ -45,6 +45,14 @@ export const registerValidator = (data) => {
                 "any.only": "Jenis kelamin tidak valid! Harus MALE, FEMALE, atau OTHER.",
                 "string.empty": "Jenis kelamin tidak boleh kosong!"
             }),
+        
+        passwordConfirmation: Joi.string()
+            .valid(Joi.ref("password"))
+            .required()
+            .messages({
+                "any.required": "Konfirmasi password tidak boleh kosong!",
+                "any.only": "Konfirmasi password tidak sesuai!"
+            })  
     });
 
     return schema.validate(data, { abortEarly: false });
