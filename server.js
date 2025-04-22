@@ -19,6 +19,7 @@ import newsActionRoutes from "./src/routes/newsAction.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5000"];
 
 app.set('trust proxy', 1);
 
@@ -32,7 +33,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 app.use(cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5000",
+    origin: allowedOrigins,
     credentials: true
 }));
 
