@@ -14,7 +14,7 @@ export const register = async (data) => {
         throw new BadRequestError("Validasi gagal", messages);
     }
 
-    const { name, email, password, birthDate, gender } = data;
+    const { name, email, password, passwordConfirmation, birthDate, gender } = data;
 
     const existingUser = await authRepository.getUserByEmail(email);
     if (existingUser) throw new ForbiddenError("Akun sudah terdaftar");
