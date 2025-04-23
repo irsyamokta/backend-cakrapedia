@@ -22,6 +22,22 @@ export const generateTokens = (user) => {
     return { accessToken, refreshToken };
 };
 
+export const generateRefreshToken = (user) => {
+    return jwt.sign(
+        { userId: user.id },
+        REFRESH_TOKEN_SECRET,
+        { algorithm: "HS256", expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
+    );
+};
+
+export const generateAccessToken = (user) => {
+    return jwt.sign(
+        { userId: user.id, email: user.email, role: user.role, status: user.status },
+        ACCESS_TOKEN_SECRET,
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRES }
+    );
+};
+
 export const refreshTokens = (user) => {
     return generateTokens(user);
 };
