@@ -17,7 +17,6 @@ model User {
   birthDate         DateTime?
   gender            Gender?
   imageUrl          String?
-  refreshToken      String?   @db.Text
   isVerified        Boolean   @default(false)
   verificationToken String?
   resetToken        String?
@@ -25,6 +24,8 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
+  // Relasi
+  sessions         Session[]
   newsAuthored     News[]          @relation("NewsAuthor")
   newsEdited       News[]          @relation("NewsEditor")
   likesDislikes    LikesDislikes[]
@@ -32,6 +33,18 @@ model User {
   comments         Comment[]
   userRequests     UserRequest[]   @relation("UserRequestUser")
   reviewedRequests UserRequest[]   @relation("UserRequestReviewedBy")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  refreshToken String   @db.Text
+  userAgent    String?
+  ipAddress    String?
+  isValid      Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model News {
