@@ -1,8 +1,9 @@
 import crypto from "crypto";
 import * as authRepository from "../repositories/auth.repository.js";
+import * as userRepository from "../repositories/user.repository.js";
 import * as sessionService from "../services/session.service.js";
-import * as tokenService from "../utils/token.utils.js";
 import * as emailService from "../utils/email/index.js";
+import * as tokenService from "../utils/token.utils.js";
 import { hashPassword, verifyPassword } from "../utils/password.utils.js";
 import { registerValidator, loginValidator } from "../utils/validators/index.js";
 import { BadRequestError, UnauthorizedError, ForbiddenError } from "../utils/errors.utils.js";
@@ -57,6 +58,13 @@ export const refreshToken = async (cookies, req, res) => {
     const { accessToken, newRefreshToken } = await sessionService.rotateRefreshToken(refreshToken, req);
     res.cookie("refreshToken", newRefreshToken, tokenService.cookieOptions());
     return { accessToken };
+};
+
+export const me = async (userId) => {
+    const user = await userRepository.getUserById(userId);
+    if (!user) throw new UnauthorizedError("Tidak ada token yang diberikan");
+
+    return { data: { id: user.id, name: user.name, email: user.email, role: user.role } };
 };
 
 export const verifyEmail = async (token) => {
