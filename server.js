@@ -51,12 +51,10 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/news", newsRoutes);
 app.use("/api/v1/news-action", newsActionRoutes);
-// app.use("/api/v1/editor", newsRoutes);
 
 app.get("/", (req, res) => res.send("Server is running"));
 
 app.use((err, req, res, next) => {
-    console.error(err);
     res.status(err.statusCode || 500).json({
         status: "error",
         message: err.message || "Terjadi kesalahan pada server",
