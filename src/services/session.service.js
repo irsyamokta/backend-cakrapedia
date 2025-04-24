@@ -2,9 +2,9 @@ import * as sessionRepository from "../repositories/session.repository.js";
 import * as tokenService from "../utils/token.utils.js";
 
 export const createSession = async (userId, userAgent, ipAddress) => {
-    const refreshToken = tokenService.generateRefreshToken({ userId });
+    const refreshToken = tokenService.generateRefreshToken({ id: userId });
     await sessionRepository.createSession(userId, refreshToken, userAgent, ipAddress);
-    const accessToken = tokenService.generateAccessToken({ userId });
+    const accessToken = tokenService.generateAccessToken({ id: userId });
     return { accessToken, refreshToken };
 };
 
@@ -14,9 +14,9 @@ export const rotateRefreshToken = async (oldRefreshToken, req) => {
 
     await sessionRepository.invalidateSession(oldRefreshToken);
 
-    const newRefreshToken = tokenService.generateRefreshToken({ userId: session.userId });
+    const newRefreshToken = tokenService.generateRefreshToken({ id: session.userId });
     await sessionRepository.createSession(session.userId, newRefreshToken, req.get("user-agent"), req.ip);
-    const accessToken = tokenService.generateAccessToken({ userId: session.userId });
+    const accessToken = tokenService.generateAccessToken({ id: session.userId });
 
     return { accessToken, newRefreshToken };
 };
