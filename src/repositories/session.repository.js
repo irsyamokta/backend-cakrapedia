@@ -3,7 +3,7 @@ import prisma from "../config/db.js";
 export const createSession = async (userId, refreshToken, userAgent, ipAddress) => {
     return prisma.session.create({
         data: {
-            userId,
+            userId: userId,
             refreshToken,
             userAgent,
             ipAddress,
