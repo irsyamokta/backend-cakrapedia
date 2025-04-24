@@ -16,6 +16,7 @@ export const getUsers = async () => {
 };
 
 export const getUserProfile = async (userId) => {
+    console.log(userId);
     const user = await userRepository.getUserById(userId, { id: true, name: true, email: true, birthDate: true, gender: true, role: true, imageUrl: true });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
