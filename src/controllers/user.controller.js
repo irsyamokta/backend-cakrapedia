@@ -11,7 +11,7 @@ export const getUsers = async (req, res, next) => {
 
 export const getUserProfile = async (req, res, next) => {
     try {
-        const result = await userService.getUserProfile(req.user.userId);
+        const result = await userService.getUserProfile(req.user.id);
         res.status(200).json({ ...result });
     } catch (error) {
         next(error);
