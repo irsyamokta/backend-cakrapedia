@@ -37,6 +37,15 @@ export const refreshToken = async (req, res, next) => {
     }
 };
 
+export const me = async (req, res, next) => {
+    try {
+        const result = await authService.me(req.user.id);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const verifyEmail = async (req, res, next) => {
     try {
         await authService.verifyEmail(req.params.token);
