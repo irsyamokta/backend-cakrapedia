@@ -1,7 +1,7 @@
 import express from "express";
 import { changeUserPassword, forgotUserPassword, resetUserPassword } from "../controllers/password.controller.js";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { checkVerifiedUser } from "../middlewares/verifiedUserMiddleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { checkVerifiedUser } from "../middlewares/verified.middleware.js";
 
 const router = express.Router();
 
