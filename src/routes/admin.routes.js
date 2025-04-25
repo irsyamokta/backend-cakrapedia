@@ -1,6 +1,6 @@
 import express from "express";
-import  { hasRole }  from "../middlewares/roleMiddleware.js";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { hasRole } from "../middlewares/role.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { getUsers, reviewRoleRequest, createCategory } from "../controllers/admin.controller.js";
 // import { getAllNews } from "../controllers/newsController.js";
 
