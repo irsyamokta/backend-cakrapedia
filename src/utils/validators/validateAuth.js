@@ -22,7 +22,8 @@ export const registerValidator = (data) => {
 
         password: Joi.string()
             .min(8)
-            .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+            .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+            )
             .required()
             .messages({
                 "string.min": "Password minimal harus 8 karakter!",
@@ -45,14 +46,14 @@ export const registerValidator = (data) => {
                 "any.only": "Jenis kelamin tidak valid! Harus MALE, FEMALE, atau OTHER.",
                 "string.empty": "Jenis kelamin tidak boleh kosong!"
             }),
-        
+
         passwordConfirmation: Joi.string()
             .valid(Joi.ref("password"))
             .required()
             .messages({
                 "any.required": "Konfirmasi password tidak boleh kosong!",
                 "any.only": "Konfirmasi password tidak sesuai!"
-            })  
+            })
     });
 
     return schema.validate(data, { abortEarly: false });
