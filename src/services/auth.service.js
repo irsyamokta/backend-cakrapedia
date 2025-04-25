@@ -32,6 +32,7 @@ export const login = async (data, req, res) => {
     const user = await authRepository.getUserByEmail(email);
     if (!user) throw new UnauthorizedError("Akun tidak ditemukan");
     if (!user.isVerified) throw new UnauthorizedError("Email belum diverifikasi");
+    if (user.status === "PENDING") throw new UnauthorizedError("Akun belum diverifikasi");
 
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) throw new UnauthorizedError("Kredensial tidak valid");
