@@ -1,8 +1,8 @@
 import express from "express";
 import { multerUpload } from "../config/multer.js";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { getNews, getNewsById, getNewsByAuthor, getNewsByCategory, getNewsPublished, createNews, updateNews, deleteNews, newsStatus } from "../controllers/news.controller.js";
-import { hasRole } from "../middlewares/roleMiddleware.js"; 
+import { hasRole } from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
