@@ -2,7 +2,7 @@ import * as passwordService from "../services/password.service.js"
 
 export const changeUserPassword = async (req, res, next) => {
     try {
-        const result = await passwordService.changeUserPassword(req.user.userId, req.body);
+        const result = await passwordService.changeUserPassword(req.user.id, req.body);
         res.status(200).json({ status: "success", ...result });
     } catch (error) {
         next(error);
