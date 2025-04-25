@@ -1,7 +1,7 @@
 import express from "express";
 import { multerUpload } from "../config/multer.js";
 import { getUserProfile, updateUserProfile, requestRoleChange, deleteUser } from "../controllers/user.controller.js";
-import { authMiddleware } from "../middlewares/authMiddleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
