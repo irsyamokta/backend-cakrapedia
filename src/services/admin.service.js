@@ -24,10 +24,39 @@ export const reviewRoleRequest = async (requestId, adminId, data) => {
 export const createCategory = async (data) => {
     const { name } = data;
 
-    const categoryExist = await categoryRepository.getCategory(name);
+    const categoryExist = await categoryRepository.getCategoriesByName(name);
+    console.log(categoryExist);
     if (categoryExist) throw new BadRequestError("Kategori sudah ada", ["Tidak dapat membuat kategori baru"]);
 
     const createCategory = await categoryRepository.createCategory(name);
 
     return { message: "Kategori berhasil dibuat", createCategory };
+};
+
+export const getCategories = async () => {
+    const categories = await categoryRepository.getCategories();
+    if (!categories) throw new NotFoundError("Kategori tidak ditemukan");
+
+    return { message: "Kategori berhasil diambil", categories };
+};
+
+export const deleteCategory = async (categoryId) => {
+    const category = await categoryRepository.getCategoryById(categoryId);
+    if (!category) throw new NotFoundError("Kategori tidak ditemukan");
+
+    await categoryRepository.deleteCategory(categoryId);
+    return { message: "Kategori berhasil dihapus" };
+};
+
+export const deleteUserById = async (userId, adminId) => {
+    const user = await userRepository.getUserById(userId);
+    if(!user) throw new NotFoundError("Akun tidak ditemukan");
+
+    const admin = await userRepository.getUserById(adminId);
+    if (!admin) throw new NotFoundError("Admin tidak ditemukan");
+    if (userId === adminId) throw new BadRequestError("Admin tidak dapat menghapus akun sendiri", ["Tidak dapat menghapus akun"]);
+    if (admin.role !== "ADMIN") throw new BadRequestError("Anda tidak memiliki izin untuk menghapus akun ini", ["Tidak dapat menghapus akun"]);
+        
+    await userRepository.deleteUser(userId);
+    return { message: "Akun berhasil dihapus" };
 };
