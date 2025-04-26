@@ -28,3 +28,5 @@ export const invalidateSession = async (refreshToken) => {
 export const deleteSession = async (refreshToken) => {
     return sessionRepository.deleteSession(refreshToken);
 };
+
+export const getAllSessions = async () => sessionRepository.getSessionsCountByDevice();
