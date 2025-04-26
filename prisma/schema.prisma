@@ -59,6 +59,7 @@ model News {
   editor     User?      @relation(name: "NewsEditor", fields: [editorId], references: [id])
   editorId   String?
   status     NewsStatus @default(DRAFT)
+  views      NewsView[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
@@ -67,9 +68,21 @@ model News {
   comments      Comment[]
 }
 
+model NewsView {
+  id        String   @id @default(uuid())
+  news      News     @relation(fields: [newsId], references: [id])
+  newsId    String
+  ipAddress String
+  createdAt DateTime @default(now())
+
+  @@unique([newsId, ipAddress]) // opsional: 1 view per IP per berita
+}
+
 model Category {
-  id   String @id @default(uuid())
-  name String @unique
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  
   news News[]
 }
 
