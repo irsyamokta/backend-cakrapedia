@@ -2,19 +2,21 @@ import { bucket } from "../config/multer.js";
 import { BadRequestError } from "../utils/errors.utils.js";
 
 export const uploadImage = async (file, category) => {
-    if (!file) throw new Error("File tidak boleh kosong!");
+    if (file) {
+        const allowedImageTypes = ["image/png", "image/jpeg", "image/jpg"];
+        if (!allowedImageTypes.includes(file.mimetype)) {
+            throw new BadRequestError("Hanya file gambar yang diperbolehkan!", ["Upload image error"]);
+        }
 
-    const allowedImageTypes = ["image/png", "image/jpeg", "image/jpg"];
-    if (!allowedImageTypes.includes(file.mimetype)) {
-        throw new BadRequestError("Hanya file gambar yang diperbolehkan!", ["Upload image error"]);
+        let folder = "images";
+        if (category === "news") folder = `${folder}/news`;
+        if (category === "profile") folder = `${folder}/profile`;
+
+        const fileUrl = await uploadToGCS(file, folder);
+        return { message: "Gambar berhasil diupload!", fileUrl };
+    } else {
+        return { message: "No file uploaded" };
     }
-
-    let folder = "images";
-    if (category === "news") folder = `${folder}/news`;
-    if (category === "profile") folder = `${folder}/profile`;
-
-    const fileUrl = await uploadToGCS(file, folder);
-    return ({ message: "Gambar berhasil diupload!", fileUrl });
 };
 
 export const uploadPDF = async (file) => {
