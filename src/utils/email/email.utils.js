@@ -26,11 +26,11 @@ const sendEmail = async (to, subject, htmlContent) => {
 };
 
 export const sendVerificationEmail = async (name, email, token) => {
-    const verificationLink = `http://localhost:3000/api/v1/auth/verify/${token}`;
+    const verificationLink = `${process.env.APP_URL}/api/v1/auth/verify/${token}`;
     await sendEmail(email, "Email Verification", emailVerifyTemplate(name, verificationLink));
 };
 
 export const sendForgotPasswordEmail = async (name, email, token) => {
-    const resetLink = `http://localhost:3000/api/v1/password/reset/${token}`;
+    const resetLink = `${process.env.APP_URL}/api/v1/password/reset/${token}`;
     await sendEmail(email, "Reset Password", emailForgotPasswordTemplate(name, resetLink));
 };
