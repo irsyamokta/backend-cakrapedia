@@ -40,10 +40,10 @@ export const login = async (data, req, res) => {
     const userAgent = req.get("user-agent") || "unknown";
     const ipAddress = req.ip;
 
-    const { accessToken, refreshToken } = await sessionService.createSession(user.id, userAgent, ipAddress);
+    const { refreshToken } = await sessionService.createSession(user.id, userAgent, ipAddress);
     res.cookie("refreshToken", refreshToken, tokenService.cookieOptions());
 
-    return { message: "Login berhasil", accessToken, data: { id: user.id, name: user.name, email: user.email, role: user.role } };
+    return { message: "Login berhasil", data: { id: user.id, role: user.role } };
 };
 
 export const logout = async (cookies) => {
@@ -65,7 +65,7 @@ export const me = async (userId) => {
     const user = await userRepository.getUserById(userId);
     if (!user) throw new UnauthorizedError("Tidak ada token yang diberikan");
 
-    return { data: { id: user.id, name: user.name, email: user.email, role: user.role } };
+    return { data: { id: user.id, name: user.name, email: user.email, birthDate: user.birthDate, gender: user.gender, role: user.role, imageUrl: user.imageUrl, status: user.status } };
 };
 
 export const verifyEmail = async (token) => {
