@@ -16,6 +16,7 @@ import userRoutes from "./src/routes/user.routes.js";
 import adminRoutes from "./src/routes/admin.routes.js";
 import newsRoutes from "./src/routes/news.routes.js";
 import newsActionRoutes from "./src/routes/newsAction.routes.js";
+import sessionRoutes from "./src/routes/session.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -24,11 +25,16 @@ const allowedOrigins = ["http://localhost:5173", "http://localhost:5000"];
 app.set('trust proxy', 1);
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
+    windowMs: 15 * 60 * 1000,
     max: 100,
-    message: "Too many requests from this IP, please try again after 15 minutes",
     standardHeaders: true,
     legacyHeaders: false,
+    handler: (req, res, next) => {
+        res.status(429).json({
+            status: "fail",
+            message: "Too many requests, please try again later",
+        });
+    },
 });
 
 app.use(limiter);
@@ -51,6 +57,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/news", newsRoutes);
 app.use("/api/v1/news-action", newsActionRoutes);
+app.use("/api/v1/session", sessionRoutes);
 
 app.get("/", (req, res) => res.send("Server is running"));
 
