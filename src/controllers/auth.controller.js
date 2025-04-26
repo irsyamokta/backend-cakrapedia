@@ -50,8 +50,10 @@ export const me = async (req, res, next) => {
 export const verifyEmail = async (req, res, next) => {
     try {
         await authService.verifyEmail(req.params.token);
-        res.redirect(process.env.FRONTEND_URL);
+        res.redirect(`${process.env.FRONTEND_URL}/signin`);
     } catch (error) {
-        next(error);
+        console.error(error);
+        res.redirect(`${process.env.FRONTEND_URL}email/verified`);
     }
 };
+
