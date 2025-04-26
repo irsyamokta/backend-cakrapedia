@@ -11,7 +11,8 @@ export const getUsers = async (role) => {
             status: true,
             birthDate: true,
             gender: true,
-            imageUrl: true
+            imageUrl: true,
+            isVerified: true
         }
     });
 };
