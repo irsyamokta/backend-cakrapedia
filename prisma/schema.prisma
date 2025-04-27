@@ -24,7 +24,6 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  // Relasi
   sessions         Session[]
   newsAuthored     News[]          @relation("NewsAuthor")
   newsEdited       News[]          @relation("NewsEditor")
@@ -48,20 +47,21 @@ model Session {
 }
 
 model News {
-  id         String     @id @default(uuid())
-  title      String
-  content    String     @db.LongText
-  imageUrl   String?
-  categoryId String?
-  category   Category?  @relation(fields: [categoryId], references: [id])
-  author     User       @relation(name: "NewsAuthor", fields: [authorId], references: [id])
-  authorId   String
-  editor     User?      @relation(name: "NewsEditor", fields: [editorId], references: [id])
-  editorId   String?
-  status     NewsStatus @default(DRAFT)
-  views      NewsView[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id           String     @id @default(uuid())
+  title        String
+  content      String     @db.LongText
+  imageUrl     String?
+  categoryId   String?
+  category     Category?  @relation(fields: [categoryId], references: [id])
+  author       User       @relation(name: "NewsAuthor", fields: [authorId], references: [id])
+  authorId     String
+  editor       User?      @relation(name: "NewsEditor", fields: [editorId], references: [id])
+  editorId     String?
+  status       NewsStatus @default(DRAFT)
+  rejectReason String?
+  views        NewsView[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   likesDislikes LikesDislikes[]
   savedNews     SavedNews[]
@@ -75,14 +75,14 @@ model NewsView {
   ipAddress String
   createdAt DateTime @default(now())
 
-  @@unique([newsId, ipAddress]) // opsional: 1 view per IP per berita
+  @@unique([newsId, ipAddress])
 }
 
 model Category {
   id        String   @id @default(uuid())
   name      String   @unique
   createdAt DateTime @default(now())
-  
+
   news News[]
 }
 
@@ -122,6 +122,7 @@ model UserRequest {
   roleRequested RoleRequested
   portfolio     String
   status        Status        @default(PENDING)
+  rejectReason  String?
   reviewedBy    User?         @relation(name: "UserRequestReviewedBy", fields: [reviewedById], references: [id])
   reviewedById  String?
   reviewedAt    DateTime?
