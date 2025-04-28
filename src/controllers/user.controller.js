@@ -29,7 +29,7 @@ export const updateUserProfile = async (req, res, next) => {
 
 export const requestRoleChange = async (req, res, next) => {
     try {
-        const result = await userService.requestRoleChange(req.user.userId, req.body, req.file);
+        const result = await userService.requestRoleChange(req.user.id, req.body, req.file);
         res.status(200).json({ status: "success", ...result });
     } catch (error) {
         next(error);
