@@ -3,9 +3,18 @@ import { getUsers } from "../controllers/user.controller.js"
 
 export { getUsers };
 
-export const reviewRoleRequest = async (req, res, next) => {
+export const getUserRequestRole = async (req, res, next) => {
     try {
-        const result = await adminService.reviewRoleRequest(req.params.requestId, req.user.userId, req.body);
+        const result = await adminService.getRoleRequest();
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const updateUserRequestRole = async (req, res, next) => {
+    try {
+        const result = await adminService.updatUserRoleRequest(req.params.requestId, req.user.id, req.body);
         res.status(200).json(result);
     } catch (error) {
         next(error);
