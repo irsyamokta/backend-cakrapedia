@@ -7,16 +7,22 @@ import { NotFoundError, BadRequestError } from "../utils/errors.utils.js";
 import { updateProfileValidator, requestRoleValidator } from "../utils/validators/index.js";
 
 export const getUsers = async () => {
-    const reader = await userRepository.getUsers("READER");
-    const jurnalist = await userRepository.getUsers("JURNALIS");
-    const editor = await userRepository.getUsers("EDITOR");
-    const admin = await userRepository.getUsers("ADMIN");
+    const roles = ["READER", "JURNALIS", "EDITOR", "ADMIN"];
 
-    return { reader, jurnalist, editor, admin }
+    const [reader, jurnalist, editor, admin] = await Promise.all(
+        roles.map(role => userRepository.getUsers(role))
+    );
+
+    const allUsers = [...reader, ...jurnalist, ...editor, ...admin];
+
+    if (allUsers.length === 0) {
+        throw new NotFoundError("Semua data kosong");
+    }
+
+    return { reader, jurnalist, editor, admin };
 };
 
 export const getUserProfile = async (userId) => {
-    console.log(userId);
     const user = await userRepository.getUserById(userId, { id: true, name: true, email: true, birthDate: true, gender: true, role: true, imageUrl: true });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
@@ -61,10 +67,10 @@ export const requestRoleChange = async (userId, data, file) => {
         const message = error.details.map(err => err.message);
         throw new BadRequestError("Validasi gagal", message);
     }
-    
+
     const user = await userRepository.getUserById(userId, { email: true });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
-    
+
     const { roleRequested } = data;
     const pdfUrl = await uploadPDF(file);
 
@@ -78,11 +84,11 @@ export const requestRoleChange = async (userId, data, file) => {
 
 export const deleteUser = async (userId) => {
     const user = await userRepository.getUserById(userId);
-    if(!user) throw new NotFoundError("Akun tidak ditemukan");
+    if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
     if (user.role === "ADMIN" || user.role === "JURNALIS" || user.role === "EDITOR") throw new BadRequestError("Anda tidak memiliki izin untuk menghapus akun ini", ["Tidak dapat menghapus akun"]);
 
     await userRepository.deleteUser(userId);
-    
+
     return { message: "Akun berhasil dihapus" };
 };
