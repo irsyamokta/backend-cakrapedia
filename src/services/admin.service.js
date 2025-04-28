@@ -3,16 +3,22 @@ import * as roleRequestRpository from "../repositories/roleRequest.repository.js
 import * as categoryRepository from "../repositories/category.repository.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
+export const getRoleRequest = async () => {
+    const requests = await roleRequestRpository.getUserRequestRole();
+    if (!requests?.length) throw new NotFoundError("Tidak ada data permintaan");
 
-export const reviewRoleRequest = async (requestId, adminId, data) => {
-    const { action } = data;
+    return requests;
+}
 
-    const getRequest = await roleRequestRpository.getUserRequestRole(requestId);
+export const updatUserRoleRequest = async (requestId, adminId, data) => {
+    const { action, reason } = data;
+
+    const getRequest = await roleRequestRpository.getUserRequestRoleById(requestId);
     if (!getRequest) throw new NotFoundError("Permintaan tidak ditemukan");
 
-    if (getRequest.status !== "PENDING") throw new BadRequestError("Permintaan tidak valid", ["Permintaan sudah diproses sebelumnya"]);
+    if (getRequest.status === "APPROVED" ) throw new BadRequestError("Permintaan tidak valid", ["Permintaan sudah diproses sebelumnya"]);
 
-    const updatedRequest = await roleRequestRpository.updateUserRequestRole(requestId, action, adminId);
+    const updatedRequest = await roleRequestRpository.updateUserRequestRole(requestId, action, reason, adminId);
 
     if (action === "APPROVED") {
         await userRepository.updateUserRole(getRequest.userId, getRequest.roleRequested, action);
@@ -35,7 +41,7 @@ export const createCategory = async (data) => {
 
 export const getCategories = async () => {
     const categories = await categoryRepository.getCategories();
-    if (!categories) throw new NotFoundError("Kategori tidak ditemukan");
+    if (categories.length === 0 || !categories) throw new NotFoundError("Tidak ada data permintaan");
 
     return { message: "Kategori berhasil diambil", categories };
 };
