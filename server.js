@@ -24,20 +24,20 @@ const allowedOrigins = ["http://localhost:5173", "http://localhost:5000"];
 
 app.set('trust proxy', 1);
 
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res, next) => {
-        res.status(429).json({
-            status: "fail",
-            message: "Too many requests, please try again later",
-        });
-    },
-});
+// const limiter = rateLimit({
+//     windowMs: 15 * 60 * 1000,
+//     max: 100,
+//     standardHeaders: true,
+//     legacyHeaders: false,
+//     handler: (req, res, next) => {
+//         res.status(429).json({
+//             status: "fail",
+//             message: "Too many requests, please try again later",
+//         });
+//     },
+// });
 
-app.use(limiter);
+// app.use(limiter);
 app.use(cors({
     origin: allowedOrigins,
     credentials: true
@@ -63,7 +63,6 @@ app.get("/", (req, res) => res.send("Server is running"));
 
 app.use((err, req, res, next) => {
     res.status(err.statusCode || 500).json({
-        status: "error",
         message: err.message || "Terjadi kesalahan pada server",
         errors: err.details || undefined,
     });
