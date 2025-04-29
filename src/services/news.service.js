@@ -7,31 +7,31 @@ import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
 export const getNews = async () => {
     const news = await newsRepository.getNews();
-    if (news.length === 0) throw new NotFoundError("Berita tidak ditemukan");
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
     return { message: "Berita berhasil didapatkan", news };
 };
 
 export const getNewsById = async (newsId) => {
     const news = await newsRepository.getNewsById(newsId);
-    if (news.length === 0) throw new NotFoundError("Berita tidak ditemukan");
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
     return { message: "Berita berhasil didapatkan", news };
 };
 
 export const getNewsPublished = async () => {
     const news = await newsRepository.getNewsPublished();
-    if (news.length === 0) throw new NotFoundError("Berita tidak ditemukan");
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
     return { message: "Berita berhasil didapatkan", news };
 };
 
 export const getNewsByCategory = async (categoryId) => {
     const news = await newsRepository.getNewsByCategory(categoryId);
-    if (news.length === 0) throw new NotFoundError("Berita tidak ditemukan");
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
     return { message: "Berita berhasil didapatkan", news };
 };
 
 export const getNewsByAuthor = async (authorId) => {
     const news = await newsRepository.getNewsByAuthor(authorId);
-    if (news.length === 0) throw new NotFoundError("Berita tidak ditemukan");
+    if (!news) throw new NotFoundError("Berita tidak ditemukan");
     return { message: "Berita berhasil didapatkan", news };
 };
 
