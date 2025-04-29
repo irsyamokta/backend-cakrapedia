@@ -1,11 +1,17 @@
 import prisma from "../config/db.js";
 
 
-export const getAuthor = async (userId) => prisma.user.findUnique({ where: { id: userId, role: { in: ["JURNALIS", "EDITOR"] } }, select: { id: true } });
+export const getAuthor = async (userId) => prisma.user.findUnique({ where: { id: userId, role: { notIn: ["READER"] } }, select: { id: true } });
 
 export const getNewsById = async(newsId) => prisma.news.findUnique({ where: { id: newsId } });
 
-export const getNews = async () => prisma.news.findMany({ include: { author: { select: { id: true, name: true } } } });
+export const getNews = async () => prisma.news.findMany({ 
+    include: { 
+        author: { select: { name: true } },
+        category: { select: { name: true } },
+        editor: { select: { name: true } } 
+    } 
+});
 
 export const getNewsPublished = async () => prisma.news.findMany({ where: { status: "PUBLISHED" }, include: { author: { select: { id: true, name: true } } } });
 
@@ -35,3 +41,5 @@ export const updateNews = async (newsId, data) => {
 export const deleteNews = async (newsId) => prisma.news.delete({ where: { id: newsId } });
 
 export const newsStatus = async (newsId, status) => prisma.news.update({ where: { id: newsId }, data: { status } });
+
+export const updateNewsViews = async (newsId) => prisma.news.update({ where: { id: newsId }, data: { views: { increment: 1 } } });
