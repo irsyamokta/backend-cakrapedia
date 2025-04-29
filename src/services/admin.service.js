@@ -5,7 +5,7 @@ import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
 export const getRoleRequest = async () => {
     const requests = await roleRequestRpository.getUserRequestRole();
-    if (!requests?.length) throw new NotFoundError("Tidak ada data permintaan");
+    if (!requests) throw new NotFoundError("Tidak ada data permintaan");
 
     return requests;
 }
