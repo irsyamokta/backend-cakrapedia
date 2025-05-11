@@ -1,54 +1,61 @@
-import { bucket } from "../config/multer.js";
-import { BadRequestError } from "../utils/errors.utils.js";
+import cloudinary from "../config/cloudinary.js";
+import { BadRequestError } from "./errors.utils.js";
 
 export const uploadImage = async (file, category) => {
-    if (file) {
-        const allowedImageTypes = ["image/png", "image/jpeg", "image/jpg"];
-        if (!allowedImageTypes.includes(file.mimetype)) {
-            throw new BadRequestError("Hanya file gambar yang diperbolehkan!", ["Upload image error"]);
-        }
+    if (!file) return { message: "No file uploaded" };
 
-        let folder = "images";
-        if (category === "news") folder = `${folder}/news`;
-        if (category === "profile") folder = `${folder}/profile`;
-
-        const fileUrl = await uploadToGCS(file, folder);
-        return { message: "Gambar berhasil diupload!", fileUrl };
-    } else {
-        return { message: "No file uploaded" };
+    const allowedImageTypes = ["image/png", "image/jpeg", "image/jpg"];
+    if (!allowedImageTypes.includes(file.mimetype)) {
+        throw new BadRequestError("Hanya file gambar yang diperbolehkan!", ["Upload image error"]);
     }
-};
 
+    let folder = "images";
+    if (category === "profile") folder = `${folder}/profile`;
+    if (category === "news") folder = `${folder}/news`;
+
+    const result = await uploadToCloudinary(file, folder);
+    return {
+        fileUrl: result.secure_url,
+        publicId: result.public_id
+    };
+};
 export const uploadPDF = async (file) => {
-    if (!file) throw new Error("File tidak boleh kosong!");
+    if (!file) return { message: "No file uploaded" };
 
-    if (file.mimetype !== "application/pdf") {
-        throw new BadRequestError("Hanya file PDF yang diperbolehkan!", ["Upload pdf error"]);
+    const allowedImageTypes = ["application/pdf"];
+    if (!allowedImageTypes.includes(file.mimetype)) {
+        throw new BadRequestError("Hanya file pdf yang diperbolehkan!", ["Upload pdf error"]);
     }
 
-    const fileUrl = await uploadToGCS(file, "portfolio");
-    return { message: "PDF berhasil diupload!", fileUrl };
+    let folder = "portfolio";
+
+    const result = await uploadToCloudinary(file, folder);
+    return {
+        fileUrl: result.secure_url,
+        publicId: result.public_id
+    };
 };
 
-const uploadToGCS = (file, folder) => {
+const uploadToCloudinary = (file, folder) => {
     return new Promise((resolve, reject) => {
-        const uniqueFilename = `${folder}/${Date.now()}-${file.originalname}`;
-        const fileUpload = bucket.file(uniqueFilename);
+        const stream = cloudinary.uploader.upload_stream(
+            { folder },
+            (error, result) => {
+                if (error) {
+                    return reject(new BadRequestError("Upload ke Cloudinary gagal", [error.message]));
+                }
 
-        const blobStream = fileUpload.createWriteStream({
-            metadata: { contentType: file.mimetype }
-        });
-
-        blobStream.on("error", (err) => reject(err));
-        blobStream.on("finish", async () => {
-            try {
-                const fileUrl = `https://storage.googleapis.com/${bucket.name}/${uniqueFilename}`;
-                resolve(fileUrl);
-            } catch (err) {
-                reject(err);
+                return resolve(result);
             }
-        });
-
-        blobStream.end(file.buffer);
+        );
+        stream.end(file.buffer);
     });
+};
+
+export const deleteImageFromCloudinary = async (publicId) => {
+    try {
+        await cloudinary.uploader.destroy(publicId);
+    } catch (err) {
+        throw new BadRequestError("Gagal menghapus gambar!", ["Delete image error"]);
+    }
 };
