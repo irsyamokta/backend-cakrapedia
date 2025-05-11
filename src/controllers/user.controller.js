@@ -2,35 +2,29 @@ import * as userService from "../services/user.service.js"
 
 export const getUsers = async (req, res, next) => {
     try {
-        const result = await userService.getUsers();
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const result = await userService.getUsers(page, limit);
         res.status(200).json(result);
     } catch (error) {
         next(error);
     }
 };
 
-export const getUserProfile = async (req, res, next) => {
+export const getUserById = async (req, res, next) => {
     try {
-        const result = await userService.getUserProfile(req.user.id);
-        res.status(200).json({ ...result });
+        const result = await userService.getUserById(req.params.userId);
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }
 };
 
-export const updateUserProfile = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
     try {
-        const { result, message } = await userService.updateUserProfile(req.user.id, req.body, req.file);
+        const { result, message } = await userService.updateUser(req.user.id, req.body, req.file);
         res.status(200).json({ message, data: result });
-    } catch (error) {
-        next(error);
-    }
-};
-
-export const requestRoleChange = async (req, res, next) => {
-    try {
-        const result = await userService.requestRoleChange(req.user.id, req.body, req.file);
-        res.status(200).json({ status: "success", ...result });
     } catch (error) {
         next(error);
     }
@@ -40,6 +34,15 @@ export const deleteUser = async (req, res, next) => {
     try {
         const result = await userService.deleteUser(req.user.id);
         res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const requestRoleChange = async (req, res, next) => {
+    try {
+        const result = await userService.requestRoleChange(req.user.id, req.body, req.file);
+        res.status(200).json({ status: "success", ...result });
     } catch (error) {
         next(error);
     }
