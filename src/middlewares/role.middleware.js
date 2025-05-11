@@ -8,7 +8,6 @@ export const hasRole = (...roles) => {
             });
         }
 
-        // Fetch user dari database
         const user = await getUserById(req.user.id);
 
         if (!user) {
