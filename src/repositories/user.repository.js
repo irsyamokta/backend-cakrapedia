@@ -1,20 +1,34 @@
 import prisma from "../config/db.js";
 
-export const getUsers = async (role) => {
-    return prisma.user.findMany({
-        where: { role: `${role}` },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            status: true,
-            birthDate: true,
-            gender: true,
-            imageUrl: true,
-            isVerified: true
-        }
-    });
+export const getUsers = async (role, page = 1, limit = 10) => {
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+        prisma.user.findMany({
+            where: { role },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                status: true,
+                birthDate: true,
+                gender: true,
+                imageUrl: true,
+                isVerified: true
+            },
+            skip,
+            take: limit
+        }),
+        prisma.user.count({ where: { role } })
+    ]);
+
+    return {
+        users,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit)
+    };
 };
 
 export const getUserById = async (userId, selectedField = null) => {
@@ -26,26 +40,18 @@ export const getUserById = async (userId, selectedField = null) => {
 
 export const getUserByEmail = async (email) => prisma.user.findUnique({ where: { email } });
 
-export const updateUserprofile = async (userId, data) => {
+export const updateUser = async (userId, data) => {
     return prisma.user.update({
         where: { id: userId },
-        data: {
-            name: data.name,
-            birthDate: data.birthDate,
-            gender: data.gender,
-            imageUrl: data.imageUrl
-        },
+        data,
         select: { id: true, name: true, email: true, birthDate: true, gender: true, role: true, imageUrl: true },
     });
 };
 
-export const updateUserRole = async (userId, roleRequested, action) => {
+export const updateUserRole = async (userId, data) => {
     return prisma.user.update({
         where: { id: userId },
-        data: {
-            role: roleRequested,
-            status: action
-        }
+        data
     });
 }
 
