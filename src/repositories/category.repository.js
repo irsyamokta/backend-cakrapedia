@@ -16,6 +16,10 @@ export const createCategory = async (name) => {
     return prisma.category.create({ data: { name: name } });
 };
 
+export const updateCategory = async (categoryId, name) => {
+    return prisma.category.update({ where: { id: categoryId }, data: { name: name } });
+};
+
 export const deleteCategory = async (categoryId) => {
     return prisma.category.delete({ where: { id: categoryId } });
 }
