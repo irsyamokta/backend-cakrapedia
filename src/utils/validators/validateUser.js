@@ -39,6 +39,25 @@ export const updateProfileValidator = (data) => {
                 "any.only": "Jenis kelamin tidak valid! Harus MALE, FEMALE, atau OTHER.",
                 "string.empty": "Jenis kelamin tidak boleh kosong!"
             }),
+
+        phone: Joi.string()
+            .min(10)
+            .max(15)
+            .regex(/^[0-9]+$/)
+            .empty("")
+            .required()
+            .messages({
+                "string.min": "Nomor telepon minimal harus 10 karakter!",
+                "string.max": "Nomor telepon maksimal 15 karakter!",
+                "any.required": "Nomor telepon tidak boleh kosong!"
+            }),
+
+        instagram: Joi.string()
+            .empty("")
+            .required()
+            .messages({
+                "any.required": "Instagram tidak boleh kosong!"
+            }),
     });
 
     return schema.validate(data, { abortEarly: false });
