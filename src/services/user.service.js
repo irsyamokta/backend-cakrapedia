@@ -1,10 +1,10 @@
 import crypto from "crypto";
-import * as userRepository from "../repositories/user.repository.js"
-import * as roleRequestRpository from "../repositories/roleRequest.repository.js"
-import { uploadImage, uploadPDF, deleteImageFromCloudinary } from "../utils/upload.utils.js";
+import * as userRepository from "../repositories/user.repository.js";
+import * as roleRequestRpository from "../repositories/roleRequest.repository.js";
+import { uploadImage, deleteImageFromCloudinary } from "../utils/upload.utils.js";
 import { sendVerificationEmail } from "../utils/email/index.js";
 import { NotFoundError, BadRequestError } from "../utils/errors.utils.js";
-import { updateProfileValidator, requestRoleValidator } from "../utils/validators/index.js";
+import { updateProfileValidator } from "../utils/validators/index.js";
 
 export const getUsers = async (page = 1, limit = 10) => {
     const roles = ["READER", "JURNALIS", "ADMIN"];
@@ -87,28 +87,24 @@ export const deleteUser = async (userId) => {
         await deleteImageFromCloudinary(user.publicId);
     }
 
+    await roleRequestRpository.deleteMany(userId);
+
     await userRepository.deleteUser(userId);
 
     return { message: "Akun berhasil dihapus" };
 };
 
-export const requestRoleChange = async (userId, data, file) => {
-    const { error } = requestRoleValidator(data);
-    if (error) {
-        const message = error.details.map(err => err.message);
-        throw new BadRequestError("Validasi gagal", message);
-    }
-
-    const user = await userRepository.getUserById(userId, { email: true });
+export const deleteUserById = async (userId) => {
+    const user = await userRepository.getUserById(userId);
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    const { roleRequested } = data;
-    const pdfUrl = await uploadPDF(file);
+    if(user.publicId) {
+        await deleteImageFromCloudinary(user.publicId);
+    }
 
-    const existingRequest = await roleRequestRpository.getExistingRequest(userId, "PENDING");
-    if (existingRequest) throw new BadRequestError("Tidak dapat membuat permintaan baru", ["Permintaan sudah dikirim sebelumnya"]);
+    await roleRequestRpository.deleteMany(userId);
 
-    const requestRole = await roleRequestRpository.createUserRequestRole(userId, roleRequested, pdfUrl.fileUrl)
+    await userRepository.deleteUser(userId);
 
-    return { message: "Permintaan berhasil dikirim", requestRole }
+    return { message: "Akun berhasil dihapus" };
 };
