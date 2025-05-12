@@ -2,37 +2,39 @@ import * as newsRepository from "../repositories/news.repository.js";
 import * as userRepository from "../repositories/user.repository.js";
 import * as categoryRepository from "../repositories/category.repository.js";
 import { createNewsValidator, updateNewsValidator, newsStatusValidator } from "../utils/validators/index.js";
-import { uploadImage } from "../utils/upload.utils.js";
+import { uploadImage, deleteImageFromCloudinary } from "../utils/upload.utils.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
 export const getNews = async () => {
     const news = await newsRepository.getNews();
     if (!news) throw new NotFoundError("Berita tidak ditemukan");
-    return { message: "Berita berhasil didapatkan", news };
+    return { news };
 };
 
 export const getNewsById = async (newsId) => {
     const news = await newsRepository.getNewsById(newsId);
     if (!news) throw new NotFoundError("Berita tidak ditemukan");
-    return { message: "Berita berhasil didapatkan", news };
+    return { news };
 };
 
 export const getNewsPublished = async () => {
     const news = await newsRepository.getNewsPublished();
     if (!news) throw new NotFoundError("Berita tidak ditemukan");
-    return { message: "Berita berhasil didapatkan", news };
+    return { news };
 };
 
 export const getNewsByCategory = async (categoryId) => {
     const news = await newsRepository.getNewsByCategory(categoryId);
     if (!news) throw new NotFoundError("Berita tidak ditemukan");
-    return { message: "Berita berhasil didapatkan", news };
+
+    return news;
 };
 
 export const getNewsByAuthor = async (authorId) => {
     const news = await newsRepository.getNewsByAuthor(authorId);
     if (!news) throw new NotFoundError("Berita tidak ditemukan");
-    return { message: "Berita berhasil didapatkan", news };
+
+    return news;
 };
 
 export const createNews = async (userId, data, file) => {
@@ -42,14 +44,22 @@ export const createNews = async (userId, data, file) => {
     if (error) throw new BadRequestError("Validasi gagal", error.details.map(err => err.message));
 
     const { title, content, categoryId } = data;
-    const imageUrl = await uploadImage(file, "news");
+    const { fileUrl, publicId } = await uploadImage(file, "news");
 
     const author = await newsRepository.getAuthor(userId);
     if (!author) throw new NotFoundError("Penulis tidak ditemukan");
 
-    const news = await newsRepository.createNews(title, content, categoryId, imageUrl.fileUrl, userId);
+    const newsData = {
+        title,
+        content,
+        imageUrl: fileUrl,
+        publicId,
+        authorId: author.id,
+        categoryId
+    };
+    const createNews = await newsRepository.createNews(newsData);
 
-    return { message: "Berita berhasil dibuat", news };
+    return createNews;
 };
 
 export const updateNews = async (userId, newsId, data, file) => {
@@ -79,7 +89,7 @@ export const updateNews = async (userId, newsId, data, file) => {
 
     const updatedNews = await newsRepository.updateNews(newsId, newsData);
 
-    return { message: "Berita berhasil diperbarui", updatedNews };
+    return updatedNews;
 };
 
 export const deleteNews = async (userId, newsId) => {
@@ -107,11 +117,11 @@ export const newsStatus = async (userId, newsId, data) => {
     const user = await userRepository.getUserById(userId, { id: true, role: true });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    if (!["EDITOR", "ADMIN"].includes(user.role) && news.authorId !== user.id)
+    if (!["ADMIN"].includes(user.role) && news.authorId !== user.id)
         throw new BadRequestError("Anda tidak memiliki izin untuk mengubah status berita ini", ["Anda bukan penulis berita ini"]);
 
     const { status } = data;
     const updatedNews = await newsRepository.newsStatus(newsId, status);
 
-    return { message: "Status berita berhasil diperbarui", updatedNews };
+    return updatedNews;
 };
