@@ -11,6 +11,8 @@ model User {
   id                String    @id @default(uuid())
   name              String
   email             String    @unique
+  phone             String?
+  instagram         String?
   password          String
   role              Role      @default(READER)
   status            Status    @default(PENDING)
@@ -39,7 +41,7 @@ model Session {
   id           String   @id @default(uuid())
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  refreshToken String 
+  refreshToken String
   userAgent    String?
   ipAddress    String?
   isValid      Boolean  @default(true)
