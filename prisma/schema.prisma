@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -17,6 +17,7 @@ model User {
   birthDate         DateTime?
   gender            Gender?
   imageUrl          String?
+  publicId          String?
   isVerified        Boolean   @default(false)
   verificationToken String?
   resetToken        String?
@@ -38,7 +39,7 @@ model Session {
   id           String   @id @default(uuid())
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  refreshToken String   @db.Text
+  refreshToken String 
   userAgent    String?
   ipAddress    String?
   isValid      Boolean  @default(true)
@@ -49,8 +50,9 @@ model Session {
 model News {
   id           String     @id @default(uuid())
   title        String
-  content      String     @db.LongText
+  content      String
   imageUrl     String?
+  publicId     String?
   categoryId   String?
   category     Category?  @relation(fields: [categoryId], references: [id])
   author       User       @relation(name: "NewsAuthor", fields: [authorId], references: [id])
@@ -130,7 +132,6 @@ model UserRequest {
 
 enum Role {
   ADMIN
-  EDITOR
   JURNALIS
   READER
 }
