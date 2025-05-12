@@ -37,7 +37,7 @@ export const updateUser = async (userId, data, file) => {
     const user = await userRepository.getUserById(userId, { email: true, publicId: true });
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    const { name, email, birthDate, gender } = data;
+    const { name, email, birthDate, gender, phone, instagram } = data;
     let imageUrl = user.imageUrl;
     let publicId = user.publicId;
 
@@ -55,6 +55,8 @@ export const updateUser = async (userId, data, file) => {
         name,
         birthDate: birthDate ? new Date(birthDate) : null,
         gender,
+        phone,
+        instagram,
         imageUrl,
         publicId
     };
