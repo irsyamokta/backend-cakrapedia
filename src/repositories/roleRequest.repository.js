@@ -40,4 +40,6 @@ export const updateUserRequestRole = async (requestId, data) => prisma.userReque
 
 export const deleteUserRequestRole = async (requestId) => {
     return prisma.userRequest.delete({ where: { id: requestId } });
-}
+};
+
+export const deleteMany = async (userId) => prisma.userRequest.deleteMany({ where: { userId } });
