@@ -1,14 +1,15 @@
 import express from "express";
 import { multerUpload } from "../config/multer.js";
-import { getUsers, getUserById, updateUser, requestRoleChange, deleteUser } from "../controllers/user.controller.js";
+import { getUsers, getUserById, updateUser, deleteUser, deleteUserById } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { hasRole } from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
-router.get("/users", getUsers);
+router.get("/all-user", getUsers);
 router.get("/:userId", authMiddleware, getUserById);
-router.patch("/update", authMiddleware, multerUpload, updateUser);
-router.post("/request-role", authMiddleware, multerUpload, requestRoleChange);
-router.delete("/delete", authMiddleware, deleteUser);
+router.patch("/update-user", authMiddleware, multerUpload, updateUser);
+router.delete("/delete-user", authMiddleware, deleteUser);
+router.delete("/delete-user/:userId", authMiddleware, hasRole("ADMIN"), deleteUserById);
 
 export default router;
