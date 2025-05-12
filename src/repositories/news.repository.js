@@ -19,17 +19,8 @@ export const getNewsByCategory = async (categoryId) => prisma.news.findMany({ wh
 
 export const getNewsByAuthor = async (userId) => prisma.news.findMany({ where: { authorId: userId } });
 
-export const createNews = async (title, content, categoryId, imageUrl, userId) => {
-    return prisma.news.create({
-        data: {
-            title,
-            content,
-            imageUrl,
-            categoryId,
-            authorId: userId
-        }
-    });
-};
+export const createNews = async (data) => prisma.news.create({ data });
+
 
 export const updateNews = async (newsId, data) => {
     return prisma.news.update({ 
