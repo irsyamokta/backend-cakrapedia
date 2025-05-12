@@ -75,7 +75,20 @@ export const me = async (userId) => {
     const user = await userRepository.getUserById(userId);
     if (!user) throw new UnauthorizedError("Tidak ada token yang diberikan");
 
-    return { id: user.id, name: user.name, email: user.email, birthDate: user.birthDate, gender: user.gender, role: user.role, imageUrl: user.imageUrl, status: user.status };
+    const dataUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate,
+        gender: user.gender,
+        phone: user.phone,
+        instagram: user.instagram,
+        role: user.role,
+        imageUrl: user.imageUrl,
+        status: user.status
+    }
+
+    return dataUser;
 };
 
 export const verifyEmail = async (token) => {
