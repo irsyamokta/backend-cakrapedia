@@ -39,10 +39,10 @@ export const deleteUser = async (req, res, next) => {
     }
 };
 
-export const requestRoleChange = async (req, res, next) => {
+export const deleteUserById = async (req, res, next) => {
     try {
-        const result = await userService.requestRoleChange(req.user.id, req.body, req.file);
-        res.status(200).json({ status: "success", ...result });
+        const result = await userService.deleteUserById(req.params.userId);
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }
