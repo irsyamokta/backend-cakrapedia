@@ -6,17 +6,16 @@ import { hasRole } from "../middlewares/role.middleware.js";
 
 const router = express.Router();
 
-const isAllowed = hasRole("JURNALIS", "EDITOR", "ADMIN");
+router.get("/all-news", authMiddleware, hasRole("ADMIN"), getNews);
+router.get("/:newsId", authMiddleware, hasRole("ADMIN"), getNewsById);
+router.get("/category-news/:categoryId", authMiddleware, getNewsByCategory);
+router.get("/author/view", authMiddleware, hasRole("ADMIN", "JURNALIS"), getNewsByAuthor);
+router.get("/published/view", getNewsPublished);
 
-router.post("/create", authMiddleware, isAllowed, multerUpload, createNews);
-router.put("/update/:newsId", authMiddleware, isAllowed, multerUpload, updateNews);
-router.delete("/delete/:newsId", authMiddleware, isAllowed, deleteNews);
+router.post("/create-news", authMiddleware, hasRole("ADMIN", "JURNALIS"), multerUpload, createNews);
+router.patch("/update-news/:newsId", authMiddleware, hasRole("ADMIN", "JURNALIS"), multerUpload, updateNews);
+router.delete("/delete-news/:newsId", authMiddleware, hasRole("ADMIN", "JURNALIS"), deleteNews);
 
-router.get("/view", authMiddleware, hasRole("ADMIN", "EDITOR"), getNews);
-router.get("/view/:newsId", authMiddleware, hasRole("ADMIN", "EDITOR"), getNewsById);
-router.put("/review/:newsId", authMiddleware, hasRole("ADMIN", "EDITOR"), newsStatus);
-router.get("/category/:categoryId", authMiddleware, getNewsByCategory);
-router.get("/author", authMiddleware, isAllowed, getNewsByAuthor);
-router.get("/published", getNewsPublished);
+router.patch("/review-news/:newsId", authMiddleware, hasRole("ADMIN"), newsStatus);
 
 export default router;
