@@ -29,6 +29,7 @@ export const getNewsByCategory = async (req, res, next) => {
 
 export const getNewsByAuthor = async (req, res, next) => {
     try {
+        console.log(req.user.id);
         const response = await newsService.getNewsByAuthor(req.user.id);
         res.json({...response});
     } catch (error) {
