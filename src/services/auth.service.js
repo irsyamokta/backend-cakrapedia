@@ -12,7 +12,7 @@ export const register = async (data) => {
     const { error } = registerValidator(data);
     if (error) throw new BadRequestError("Validasi gagal", error.details.map(err => err.message));
 
-    const { name, email, password, birthDate, gender } = data;
+    const { name, email, password, passwordConfirmation, birthDate, gender } = data;
     const existingUser = await authRepository.getUserByEmail(email);
     if (existingUser) throw new ForbiddenError("Akun sudah terdaftar");
 
