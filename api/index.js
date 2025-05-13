@@ -21,7 +21,7 @@ import sessionRoutes from "../src/routes/session.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const allowedOrigins = process.env.ALLOWED_ORIGINS;
+const allowedOrigins = process.env.ALLOWED_ORIGINS || "*";
 
 app.set('trust proxy', 1);
 
