@@ -22,7 +22,9 @@ export const changeUserPassword = async (userId, data) => {
 
     const hashedPassword = await passwordUtils.hashPassword(data.newPassword);
 
-    await passwordRepository.updateUserPassword(userId, hashedPassword);
+    const resetData = { password: hashedPassword }
+
+    await passwordRepository.updateUserPassword(userId, resetData);
 
     return { message: "Password berhasil diubah" };
 };
@@ -37,27 +39,38 @@ export const forgotUserPassword = async (data) => {
     const user = await userRepository.getUserByEmail(data.email);
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    const { resetToken, resetExpires } = passwordUtils.generateResetToken();
-    await passwordRepository.updateUserResetToken(user.id, resetToken, resetExpires);
+    if (user.resetToken && user.resetExpires && user.resetExpires > new Date()) {
+        throw new BadRequestError("Permintaan reset password sudah dikirim. Silakan cek email Anda atau tunggu token kadaluarsa.");
+    }
 
+    const { resetToken, resetExpires } = passwordUtils.generateResetToken();
+
+    await passwordRepository.updateUserResetToken(user.id, resetToken, resetExpires);
     await sendForgotPasswordEmail(user.name, data.email, resetToken);
 
     return { message: "Password reset email berhasil dikirim" };
 };
 
-export const resetUserPassword = async (data) => {
+export const resetUserPassword = async (token, data) => {
     const { error } = resetPasswordValidator(data);
     if (error) {
         const messages = error.details.map(err => err.message);
         throw new BadRequestError("Validasi gagal", messages);
     }
 
-    const user = await prisma.user.findFirst({ where: { resetToken: data.token, resetExpires: { gt: new Date() } } });
+    const user = await prisma.user.findFirst({ where: { resetToken: token, resetExpires: { gt: new Date() } } });
     if (!user) throw new BadRequestError("Token reset tidak valid atau telah kadaluarsa", ["Gagal reset password"]);
 
-    const hashedPassword = await passwordUtils.hashPassword(data.newPassword);
+    const { newPassword } = data;
+    const hashedPassword = await passwordUtils.hashPassword(newPassword);
 
-    await passwordRepository.updateUserPassword(user.id, hashedPassword)
+    const resetData = {
+        password: hashedPassword,
+        resetToken: null,
+        resetExpires: null
+    }
+
+    await passwordRepository.updateUserPassword(user.id, resetData);
 
     return { message: "Password berhasil direset" };
 };
