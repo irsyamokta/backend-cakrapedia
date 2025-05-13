@@ -39,13 +39,6 @@ export const forgotPasswordValidator = (data) => {
 
 export const resetPasswordValidator = (data) => {
     const schema = Joi.object({
-        token: Joi.string()
-            .empty("")
-            .required()
-            .messages({
-                "any.required": "Token reset password diperlukan!"
-            }),
-
         newPassword: Joi.string()
             .min(8)
             .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
@@ -55,7 +48,17 @@ export const resetPasswordValidator = (data) => {
                 "string.min": "Password minimal harus 8 karakter!",
                 "string.pattern.base": "Password harus mengandung huruf, angka, dan karakter spesial!",
                 "any.required": "Password tidak boleh kosong!"
-            })
+            }),
+        
+        passwordConfirmation: Joi.string()
+            .min(8)
+            .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+            .messages({
+                "string.min": "Password minimal harus 8 karakter!",
+                "string.pattern.base": "Password harus mengandung huruf, angka, dan karakter spesial!",
+                "any.required": "Password tidak boleh kosong!"
+            }),
+        
     });
 
     return schema.validate(data, { abortEarly: false });
