@@ -31,6 +31,6 @@ export const sendVerificationEmail = async (name, email, token) => {
 };
 
 export const sendForgotPasswordEmail = async (name, email, token) => {
-    const resetLink = `${process.env.APP_URL}/api/v1/password/reset/${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
     await sendEmail(email, "Reset Password", emailForgotPasswordTemplate(name, resetLink));
 };
