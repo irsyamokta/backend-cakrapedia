@@ -16,7 +16,6 @@ export const createNewsValidator = (data) => {
 
         content: Joi.string()
             .min(3)
-            .max(1000)
             .empty("")
             .required()
             .messages({
@@ -32,7 +31,20 @@ export const createNewsValidator = (data) => {
             .messages({
                 "string.empty": "Kategori tidak boleh kosong!",
                 "any.required": "Kategori tidak boleh kosong!"
-            })
+            }),
+
+        status: Joi.string()
+            .valid("DRAFT", "REVIEW", "PUBLISHED", "UNPUBLISHED", "REJECTED")
+            .empty("")
+            .messages({
+                "any.only": "Status tidak valid! Harus DRAFT, REVIEW, PUBLISHED, REJECTED",
+            }),
+
+        rejectReason: Joi.string()
+            .empty(""),
+
+        editorId: Joi.string()
+            .empty("")
     });
 
     return schema.validate(data, { abortEarly: false });
@@ -52,7 +64,6 @@ export const updateNewsValidator = (data) => {
 
         content: Joi.string()
             .min(3)
-            .max(1000)
             .required()
             .messages({
                 "string.min": "Isi minimal harus 3 karakter!",
@@ -66,7 +77,20 @@ export const updateNewsValidator = (data) => {
             .messages({
                 "string.empty": "Kategori tidak boleh kosong!",
                 "any.required": "Kategori tidak boleh kosong!"
-            })
+            }),
+
+        status: Joi.string()
+            .valid("DRAFT", "REVIEW", "PUBLISHED", "UNPUBLISHED", "REJECTED")
+            .empty("")
+            .messages({
+                "any.only": "Status tidak valid! Harus DRAFT, REVIEW, PUBLISHED, REJECTED",
+            }),
+
+        rejectReason: Joi.string()
+            .empty(""),
+
+        editorId: Joi.string()
+            .empty("")
     });
 
     return schema.validate(data, { abortEarly: false });
