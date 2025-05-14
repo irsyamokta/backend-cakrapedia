@@ -5,6 +5,6 @@ import { getAllSessions } from "../controllers/session.controller.js";
 
 const router = express.Router();
 
-router.get("/by-device", authMiddleware, hasRole("ADMIN"), getAllSessions);
+router.get("/all-sessions", authMiddleware, hasRole("ADMIN"), getAllSessions);
 
 export default router;
