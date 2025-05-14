@@ -2,8 +2,11 @@ import * as newsService from "../services/news.service.js";
 
 export const getNews = async (req, res, next) => {
     try {
-        const response = await newsService.getNews();
-        res.json({...response});
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const response = await newsService.getNews(page, limit);
+        res.json(response);
     } catch (error) {
         next(error);
     }
@@ -29,7 +32,6 @@ export const getNewsByCategory = async (req, res, next) => {
 
 export const getNewsByAuthor = async (req, res, next) => {
     try {
-        console.log(req.user.id);
         const response = await newsService.getNewsByAuthor(req.user.id);
         res.json({...response});
     } catch (error) {
