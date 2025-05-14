@@ -3,15 +3,31 @@ import prisma from "../config/db.js";
 
 export const getAuthor = async (userId) => prisma.user.findUnique({ where: { id: userId, role: { notIn: ["READER"] } }, select: { id: true } });
 
-export const getNewsById = async(newsId) => prisma.news.findUnique({ where: { id: newsId } });
+export const getNewsById = async (newsId) => prisma.news.findUnique({ where: { id: newsId } });
 
-export const getNews = async () => prisma.news.findMany({ 
-    include: { 
-        author: { select: { name: true } },
-        category: { select: { name: true } },
-        editor: { select: { name: true } } 
-    } 
-});
+export const getNews = async (page = 1, limit = 10) => {
+    const skip = (page - 1) * limit;
+
+    const [news, total] = await Promise.all([
+        prisma.news.findMany({ 
+            skip, 
+            take: limit, 
+            include: { 
+                author: { select: { name: true } },
+                category: { select: { id: true, name: true } },
+                editor: { select: { name: true } }
+            } }),
+        prisma.news.count()
+    ]);
+
+    return {
+        news,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit)
+    };
+}
+
 
 export const getNewsPublished = async () => prisma.news.findMany({ where: { status: "PUBLISHED" }, include: { author: { select: { id: true, name: true } } } });
 
@@ -23,8 +39,8 @@ export const createNews = async (data) => prisma.news.create({ data });
 
 
 export const updateNews = async (newsId, data) => {
-    return prisma.news.update({ 
-        where: { id: newsId }, 
+    return prisma.news.update({
+        where: { id: newsId },
         data
     });
 };
