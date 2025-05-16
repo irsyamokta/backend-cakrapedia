@@ -6,20 +6,9 @@ import { sendVerificationEmail } from "../utils/email/index.js";
 import { NotFoundError, BadRequestError } from "../utils/errors.utils.js";
 import { updateProfileValidator } from "../utils/validators/index.js";
 
-export const getUsers = async (page = 1, limit = 10) => {
-    const roles = ["READER", "JURNALIS", "ADMIN"];
-
-    const roleResults = await Promise.all(
-        roles.map(role => userRepository.getUsers(role, page, limit))
-    );
-
-    const [reader, jurnalist, admin] = roleResults;
-
-    return {
-        reader,
-        jurnalist,
-        admin
-    };
+export const getUsers = async ({ page = 1, limit = 10, search = "", role = "" }) => {
+    const result = await userRepository.getUsers({ page, limit, search, role });
+    return result;
 };
 
 export const getUserById = async (userId) => {
@@ -100,7 +89,7 @@ export const deleteUserById = async (userId) => {
     const user = await userRepository.getUserById(userId);
     if (!user) throw new NotFoundError("Akun tidak ditemukan");
 
-    if(user.publicId) {
+    if (user.publicId) {
         await deleteImageFromCloudinary(user.publicId);
     }
 
