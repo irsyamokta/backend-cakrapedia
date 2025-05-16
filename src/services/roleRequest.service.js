@@ -26,7 +26,6 @@ export const getUserRoleRequestByUserId = async (userId) => {
 };
 
 export const createUserRoleRequest = async (userId, data, file) => {
-    console.log(data);
     const { error } = requestRoleValidator(data);
     if (error) {
         const message = error.details.map(err => err.message);
@@ -56,13 +55,13 @@ export const createUserRoleRequest = async (userId, data, file) => {
 };
 
 export const updateUserRoleRequest = async (requestId, adminId, data) => {
-    const { action, reason } = data;
-
     const getRequest = await roleRequestRpository.getUserRequestRoleById(requestId);
     if (!getRequest) throw new NotFoundError("Permintaan tidak ditemukan");
 
     if (getRequest.status === "APPROVED")
         throw new BadRequestError("Permintaan tidak valid", ["Permintaan sudah diproses sebelumnya"]);
+
+    const { action, reason } = data;
 
     const updateData = {
         status: action === "APPROVED" ? "APPROVED" : "REJECTED",
@@ -81,7 +80,7 @@ export const updateUserRoleRequest = async (requestId, adminId, data) => {
     }
 
     if (action === "APPROVED") {
-         await userRepository.updateUserRole(getRequest.userId, updateUserRole);
+        await userRepository.updateUserRole(getRequest.userId, updateUserRole);
     }
 
     return {
@@ -93,6 +92,10 @@ export const updateUserRoleRequest = async (requestId, adminId, data) => {
 export const deleteUserRoleRequest = async (requestId) => {
     const request = await roleRequestRpository.getUserRequestRoleById(requestId);
     if (!request) throw new NotFoundError("Permintaan tidak ditemukan");
+
+    if(request.publicId) {
+        await deleteImageFromCloudinary(request.publicId);
+    }
 
     await roleRequestRpository.deleteUserRequestRole(requestId);
 
