@@ -1,26 +1,33 @@
 import prisma from "../config/db.js";
 
-export const getUsers = async (role, page = 1, limit = 10) => {
+export const getUsers = async ({ page = 1, limit = 10, search = "", role = "" }) => {
     const skip = (page - 1) * limit;
+
+    const where = {
+        AND: [
+            search ? { name: { contains: search, mode: "insensitive" } } : {},
+            role ? { role } : {}
+        ]
+    };
 
     const [users, total] = await Promise.all([
         prisma.user.findMany({
-            where: { role },
+            where,
+            skip,
+            take: limit,
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
-                status: true,
                 birthDate: true,
                 gender: true,
                 imageUrl: true,
-                isVerified: true
-            },
-            skip,
-            take: limit
+                isVerified: true,
+                status: true,
+            }
         }),
-        prisma.user.count({ where: { role } })
+        prisma.user.count({ where })
     ]);
 
     return {
