@@ -52,7 +52,7 @@ export const verifyEmail = async (req, res, next) => {
         await authService.verifyEmail(req.params.token);
         res.redirect(`${process.env.FRONTEND_URL}/verified/${req.params.token}`);
     } catch (error) {
-        res.redirect(`${process.env.FRONTEND_URL}/verified/${req.params.token}`);
+        res.redirect(`${process.env.FRONTEND_URL}/signin`);
     }
 };
 
