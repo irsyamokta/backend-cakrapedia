@@ -6,16 +6,31 @@ export const getExistingRequest = async (userId, status) => {
     });
 };
 
-export const getUserRequestRole = async (page = 1, limit = 10) => {
+export const getUserRequestRole = async ({ page = 1, limit = 10, search = "", status = "" }) => {
     const skip = (page - 1) * limit;
+
+    const where = {
+        AND: [
+            search ? { user: { name: { contains: search, mode: "insensitive" } } } : {},
+            status ? { status } : {}
+        ]
+    };
+
     const [requests, total] = await Promise.all([
         prisma.userRequest.findMany({
-            where: { status: { in: ["PENDING", "REJECTED"] } },
-            include: { user: true },
+            where,
             skip,
-            take: limit
+            take: limit,
+            include: {
+                user: true,
+                reviewedBy: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         }),
-        prisma.userRequest.count({ where: { status: { in: ["PENDING", "REJECTED"] } } })
+        prisma.userRequest.count({ where })
     ]);
 
     return {
