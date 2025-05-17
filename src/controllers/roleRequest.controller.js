@@ -2,9 +2,16 @@ import * as roleRequestService from "../services/roleRequest.service.js";
 
 export const getUserRoleRequests = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const result = await roleRequestService.getUserRoleRequests(page, limit);
+        const { page = "1", limit = "10", search = "", status = "" } = req.query;
+
+        const params = {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            search,
+            status
+        };
+        
+        const result = await roleRequestService.getUserRoleRequests(params);
         res.status(200).json(result);
     } catch (error) {
         next(error);
