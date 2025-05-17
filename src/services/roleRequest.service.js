@@ -4,10 +4,8 @@ import { uploadPDF } from "../utils/upload.utils.js";
 import { requestRoleValidator } from "../utils/validators/validateUser.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
-export const getUserRoleRequests = async (page, limit) => {
-    const requests = await roleRequestRpository.getUserRequestRole(page, limit);
-    if (!requests) throw new NotFoundError("Tidak ada data permintaan");
-
+export const getUserRoleRequests = async ({page, limit, search, status}) => {
+    const requests = await roleRequestRpository.getUserRequestRole({ page, limit, search, status });
     return requests;
 };
 
