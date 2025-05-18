@@ -5,9 +5,8 @@ import { createNewsValidator, updateNewsValidator, newsStatusValidator } from ".
 import { uploadImage, deleteImageFromCloudinary } from "../utils/upload.utils.js";
 import { BadRequestError, NotFoundError } from "../utils/errors.utils.js";
 
-export const getNews = async (page, limit) => {
-    const news = await newsRepository.getNews(page, limit);
-    if (!news) throw new NotFoundError("Berita tidak ditemukan");
+export const getNews = async ({page = 1, limit = 10, search = "", status = ""}) => {
+    const news = await newsRepository.getNews({page, limit, search, status});
     return news;
 };
 
@@ -30,10 +29,8 @@ export const getNewsByCategory = async (categoryId) => {
     return news;
 };
 
-export const getNewsByAuthor = async (authorId) => {
-    const news = await newsRepository.getNewsByAuthor(authorId);
-    if (!news) throw new NotFoundError("Berita tidak ditemukan");
-
+export const getNewsByAuthor = async (authorId, { page = 1, limit = 10, search = "", status = "" }) => {
+    const news = await newsRepository.getNewsByAuthor(authorId, { page, limit, search, status });
     return news;
 };
 
@@ -90,11 +87,10 @@ export const updateNews = async (userId, newsId, data, file) => {
         throw new BadRequestError("Anda tidak memiliki izin untuk mengubah berita ini", ["Anda bukan penulis berita ini"]);
 
     const newsData = {
-        publicId: publicId ?? news.publicId,
-        imageUrl: imageUrl ?? news.imageUrl,
+        publicId,
+        imageUrl,
         title: title ?? news.title,
         content: content ?? news.content,
-        imageUrl: imageUrl.fileUrl ?? news.imageUrl,
         categoryId: categoryId ?? news.categoryId,
         status: status ?? news.status,
         rejectReason: rejectReason ?? news.rejectReason,
