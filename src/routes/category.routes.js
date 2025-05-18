@@ -5,8 +5,8 @@ import { getCategories, getCategoryById, createCategory, updateCategory, deleteC
 
 const router = express.Router();
 
-router.get("/all-category", authMiddleware, hasRole("ADMIN"), getCategories);
-router.get("/:categoryId", authMiddleware, hasRole("ADMIN"), getCategoryById);
+router.get("/all-category", authMiddleware, hasRole("ADMIN", "JURNALIS"), getCategories);
+router.get("/:categoryId", authMiddleware, hasRole("ADMIN", "JURNALIS"), getCategoryById);
 router.post("/create-category", authMiddleware, hasRole("ADMIN"), createCategory);
 router.patch("/update-category/:categoryId", authMiddleware, hasRole("ADMIN"), updateCategory);
 router.delete("/delete-category/:categoryId", authMiddleware, hasRole("ADMIN"), deleteCategory);
