@@ -5,19 +5,28 @@ export const getAuthor = async (userId) => prisma.user.findUnique({ where: { id:
 
 export const getNewsById = async (newsId) => prisma.news.findUnique({ where: { id: newsId } });
 
-export const getNews = async (page = 1, limit = 10) => {
+export const getNews = async ({ page = 1, limit = 10, search = "", status = "" }) => {
     const skip = (page - 1) * limit;
 
+    const where = {
+        AND: [
+            search ? { title: { contains: search, mode: "insensitive" } } : {},
+            status ? { status } : {}
+        ]
+    };
+
     const [news, total] = await Promise.all([
-        prisma.news.findMany({ 
-            skip, 
-            take: limit, 
-            include: { 
+        prisma.news.findMany({
+            where,
+            skip,
+            take: limit,
+            include: {
                 author: { select: { name: true } },
                 category: { select: { id: true, name: true } },
                 editor: { select: { name: true } }
-            } }),
-        prisma.news.count()
+            }
+        }),
+        prisma.news.count({ where })
     ]);
 
     return {
@@ -33,7 +42,37 @@ export const getNewsPublished = async () => prisma.news.findMany({ where: { stat
 
 export const getNewsByCategory = async (categoryId) => prisma.news.findMany({ where: { categoryId }, include: { author: { select: { id: true, name: true } } } });
 
-export const getNewsByAuthor = async (userId) => prisma.news.findMany({ where: { authorId: userId } });
+export const getNewsByAuthor = async (userId, { page = 1, limit = 10, search = "", status = "" }) => {
+    const skip = (page - 1) * limit;
+
+    const where = {
+        AND: [
+            search ? { title: { contains: search, mode: "insensitive" } } : {},
+            status ? { status } : {}
+        ]
+    };
+
+    const [news, total] = await Promise.all([
+        prisma.news.findMany({
+            where: { authorId: userId, ...where },
+            skip,
+            take: limit,
+            include: {
+                author: { select: { name: true } },
+                category: { select: { id: true, name: true } },
+                editor: { select: { name: true } }
+            }
+        }),
+        prisma.news.count({ where: { authorId: userId, ...where } })
+    ]);
+
+    return {
+        news,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit)
+    };
+}
 
 export const createNews = async (data) => prisma.news.create({ data });
 
